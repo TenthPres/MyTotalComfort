@@ -45,4 +45,11 @@ class Zone
         }
     }
 
+    public function __get($what) {
+        if (property_exists($this, $what))
+            return $this->$what;
+
+        throw new \Exception("No such thing");
+    }
+
 }

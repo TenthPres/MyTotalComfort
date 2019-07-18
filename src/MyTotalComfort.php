@@ -252,22 +252,19 @@ namespace Tenth {
 
             if ($locationId !== null) {
                 $url = 'https://www.mytotalconnectcomfort.com/portal/' . $locationId . '/Zones';
-                $opts = [];
             } else {
                 $url = 'https://www.mytotalconnectcomfort.com/portal/';
-                $opts = [
-                    'on_stats' => function (\GuzzleHttp\TransferStats $stats) {
-                        if (preg_match('/([0-9]+)/', $stats->getEffectiveUri(), $matches) === 1) {
-                            $this->defaultLocationId = $matches[1];
-                        } else {
-                            $this->defaultLocationId = false;
-                        }
-                    }
-                ];
             }
 
-            $resp = $this->request('GET', $url, $opts);
-            $zil = $this->addZonesFromHtml($resp->getBody(), 1, $locationId);
+            $resp = $this->request('GET', $url);
+            $html = $resp->getBody();
+
+            if ($locationId === null) {
+                preg_match("/\/portal\/([\d]+)\/Zones\/pa/", $html, $locationId);
+                $locationId = intval($locationId[1]);
+            }
+
+            $zil = $this->addZonesFromHtml($html, 1, $locationId);
 
             if (preg_match_all("/'pageNumber'><a href='(\/portal\/[0-9]+\/Zones\/page([0-9]+))'>/", $resp->getBody(), $pageMatches, PREG_SET_ORDER) > 0) {
                 foreach ($pageMatches as $page) {
@@ -282,9 +279,6 @@ namespace Tenth {
 
         protected function addZonesFromHtml($html, $pageNumber, $locationId) {
             preg_match_all("/data-id=\"([\d]+)\"[\s\S\R]+<div class=\"location-name\">([^<]+)<[\s\S\R]+([\d\-]{1,3})&deg[\s\S\R]+([\d\-]{1,3})%<\/div[\s\S\R]+\"alert\">([\s\S\R]+)<\/td>/mU", $html, $matches, PREG_SET_ORDER);
-
-            if ($locationId === null)
-                $locationId = $this->defaultLocationId;
 
             $pageNumber = intval($pageNumber);
             $locationId = intval($locationId);
@@ -303,10 +297,12 @@ namespace Tenth {
                 $zones[] = $this->getZone($therm[1],[
                     'zoneId' => $therm[1],
                     'page' => $pageNumber,
-                    'location' => $locationId,
+                    'locationId' => $locationId,
                     'name' => $therm[2],
                     'runStatus' => $status, // TODO parse into int?
+                    'dispTempAvailable' => is_numeric($therm[3]),
                     'dispTemp' => intval($therm[3]),
+                    'indoorHumiAvailable' => is_numeric($therm[4]),
                     'indoorHumi' => intval($therm[4]),
                     'errors' => $therm[5] // TODO parse into string[].
                 ]);
