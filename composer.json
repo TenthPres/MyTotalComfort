@@ -1,7 +1,7 @@
 {
-  "name": "tenth/MyTotalComfort",
+  "name": "tenth/my-total-comfort",
   "type": "library",
-  "description": "Interact with Honeywell MyTotalComfort-compatible Thermostats.",
+  "description": "Interact with Honeywell MyTotalComfortControl-compatible Thermostats.",
   "minimum-stability": "dev",
   "keywords": ["HVAC", "Honeywell", "IoT", "Home Automation"],
   "homepage": "https://github.com/TenthPres/MyTotalComfort",
