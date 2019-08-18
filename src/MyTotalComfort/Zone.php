@@ -3,11 +3,17 @@
 
 namespace Tenth\MyTotalComfort;
 
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\GuzzleException;
 use Tenth\MyTotalComfort;
 
 
 class Zone
 {
+
+    const WRITABLE_ATTRIBUTES = ['coolSetpoint', 'heatSetpoint', 'coolNextPeriod', 'heatNextPeriod', 'hold'];
+
+    protected $_dirty = false;
 
     /** @var MyTotalComfort  */
     protected $context;
@@ -16,19 +22,50 @@ class Zone
     protected $page;
     protected $locationId;
 
+    /** @property-read string The name of the zone.  */
     protected $name;
 
+    /** @property-read bool Whether the connection to the gateway has been lost.  */
     protected $gatewayIsLost;
+
+    /** @property-read bool Whether the indoor temperature is available. */
     protected $dispTempAvailable;
+
+    /** @property-read string The units used for temperature.  Values are "F" or "C"  */
     protected $dispUnits;
+
+    /** @property-read int The indoor temperature.  */
     protected $dispTemp;
+
+    /** @property-read bool Whether an indoor humidity sensor is present and available. */
     protected $indoorHumiAvailable;
+
+    /** @property-read int Indoor relative humidity. */
     protected $indoorHumi;
-    protected $gatewayUpgrading;
+
+
+    /** @property bool Whether a temporary hold is in place on the zone. */
+    protected $hold = false;
+
+    /** @property int Cooling Setpoint */
+    protected $coolSetpoint;
+
+    /** @property int Heat Setpoint */
+    protected $heatSetpoint;
+
+    /** @property int|null When the hold if there is one, should end for cooling.  Counted as 15-minute blocks from midnight.  e.g. 8:15am = 8 * 4 + 1 = 33  */
+    protected $coolNextPeriod = null;
+
+    /** @property int|null When the hold if there is one, should end for heating.  Counted as 15-minute blocks from midnight.  e.g. 8:15am = 8 * 4 + 1 = 33  */
+    protected $heatNextPeriod = null;
+
+
+
     protected $alerts = [];
     protected $runStatus = 0;
     protected $fanStatus;
 
+    /** @var array  */
     protected $loadedValues = [];
 
 
@@ -44,7 +81,7 @@ class Zone
      * @param int $id  The location ID number
      * @param array $data  Data to be inserted into the Location at construction.
      */
-    /** @noinspection PhpMissingParentConstructorInspection */
+    /* @noinspection PhpMissingParentConstructorInspection */
     public function __construct(MyTotalComfort $tccObject, $id, $data = []) {
 
         $this->context = $tccObject;
@@ -58,10 +95,10 @@ class Zone
         foreach ($dataArray as $k => $v) {
             $k = strtolower($k[0]) . substr($k,1);
 
-//            if (property_exists($this, $k) && $k !== 'id') {  TODO expand properties and remove comments.
+            if (property_exists($this, $k) && $k !== 'id') {
                 $this->loadedValues[$k] = true;
                 $this->$k = $v;
-//            }
+            }
         }
     }
 
@@ -77,6 +114,75 @@ class Zone
             return $this->$what;
 
         throw new Exception("No such thing");
+    }
+
+
+    public function submitChanges() {
+
+        if (!$this->_dirty)
+            return true;
+
+        try {
+            $r = $this->context->request('POST', '/portal/Device/SubmitControlScreenChanges', [
+                \GuzzleHttp\RequestOptions::JSON => [
+                    'CoolNextPeriod' => $this->coolNextPeriod,
+                    'CoolSetpoint' => ($this->hold ? $this->coolSetpoint : null),
+                    'DeviceID' => $this->id,
+                    'FanMode' => null,
+                    'HeatNextPeriod' => $this->heatNextPeriod,
+                    'HeatSetpoint' => ($this->hold ? $this->heatSetpoint : null),
+                    'StatusCool' => (int)$this->hold,
+                    'StatusHeat' => (int)$this->hold,
+                    'SystemSwitch' => null
+                ],
+                'headers' => [
+                    'Origin' => 'https://www.mytotalconnectcomfort.com/',
+                    'Referer' => 'https://www.mytotalconnectcomfort.com/portal/Device/Control/' . $this->id,
+                    'Host' => 'www.mytotalconnectcomfort.com',
+                    'Content-Type' => 'application/json; charset=UTF-8',
+                    'Upgrade-Insecure-Requests' => 1,
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36',
+                    'Accept' => 'application/json, text/javascript, */*; q=0.01',
+                    'Accept-Encoding' => 'gzip, deflate, br',
+                    'Cache-Control' => 'no-cache',
+                    'DNT' => '1',
+                    'X-Requested-With' => 'XMLHttpRequest'
+                ]
+            ]);
+
+
+            if ($r->getBody()->__toString() === "{\"success\":1}") {
+                $this->_dirty = false;
+                return true;
+            }
+
+        } catch (GuzzleException $e) {
+
+        }
+        return false;
+    }
+
+
+    public function __destruct() {
+        $this->submitChanges();
+    }
+
+
+    /**
+     * @param $what
+     * @param $value
+     */
+    public function __set($what, $value) {
+
+        if (!in_array($what, self::WRITABLE_ATTRIBUTES))
+            return;
+
+        $this->_dirty = true;
+        $this->$what = $value;
+
+        if ($what === "heatSetpoint" || $what === "coolSetpoint") {
+            $this->hold = true;
+        }
     }
 
 

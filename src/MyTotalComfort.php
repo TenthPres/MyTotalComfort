@@ -157,7 +157,7 @@ namespace Tenth {
          * @param mixed[] $dataFromCaller Data to be included in the Zone gleaned from the caller.
          * @return Zone
          */
-        public function getZone($id, $dataFromCaller) {
+        public function getZone($id, $dataFromCaller = []) {
             $id = intval($id);
 
             if (!isset($this->zones[$id])) {
@@ -212,7 +212,7 @@ namespace Tenth {
          */
         protected function login() {
             /* Execute Login */
-            $this->client->request('POST', 'https://www.mytotalconnectcomfort.com/portal/', [
+            $r = $this->client->request('POST', 'https://www.mytotalconnectcomfort.com/portal/', [
                 'form_params' => [
                     'timeOffset' => 0, //240, // TODO use actual values, and adjust for DST
                     'UserName' => $this->email,
@@ -240,6 +240,8 @@ namespace Tenth {
                     }
                 }
             ]);
+            
+            $r->getBody(); // this call has to be present, or Guzzle doesn't seem to actually send the request. 
 
             return true;
 
@@ -264,7 +266,7 @@ namespace Tenth {
             $html = $resp->getBody();
 
             if ($locationId === null) {
-                preg_match("/\/portal\/([\d]+)\/Zones\/pa/", $html, $locationId);
+                preg_match("/\/portal\/([\d]+)\/Zones\/page/", $html, $locationId);
                 $locationId = intval($locationId[1]);
             }
 
