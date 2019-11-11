@@ -87,6 +87,10 @@ class Zone
     protected $deadband = null;
     protected $commercial = null;
 
+    // By request in #2
+    protected $outdoorTemperature = null;
+    protected $outdoorHumidity = null;
+
 
 
     protected $fanStatus;
@@ -211,6 +215,8 @@ class Zone
     /**
      * @param $what
      * @param $value
+     * @throws Exception
+     * @throws GuzzleException
      */
     public function __set($what, $value) {
 
