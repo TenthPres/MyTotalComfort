@@ -29,19 +29,22 @@ class Zone
     protected $gatewayIsLost;
 
     /** @property-read bool Whether the indoor temperature is available. */
-    protected $dispTempAvailable;
+    protected $dispTemperatureAvailable;
 
     /** @property-read string The units used for temperature.  Values are "F" or "C"  */
-    protected $dispUnits;
+    protected $displayUnits;
 
     /** @property-read int The indoor temperature.  */
-    protected $dispTemp;
+    protected $dispTemperature;
 
     /** @property-read bool Whether an indoor humidity sensor is present and available. */
-    protected $indoorHumiAvailable;
+    protected $indoorHumiditySensorAvailable;
+
+    /** @property-read bool Whether an indoor humidity sensor is working properly. */
+    protected $indoorHumiditySensorNotFault;
 
     /** @property-read int Indoor relative humidity. */
-    protected $indoorHumi;
+    protected $indoorHumidity;
 
 
     /** @property bool Whether a temporary hold is in place on the zone. */
@@ -63,6 +66,29 @@ class Zone
 
     protected $alerts = [];
     protected $runStatus = 0;
+    protected $statusHeat = null;
+    protected $statusCool = null;
+    protected $holdUntilCapable = null;
+    protected $scheduleCapable = null;
+    protected $vacationHold = null;
+    protected $dualSetpointStatus = null;
+    protected $heatLowerSetptLimit = null;
+    protected $heatUpperSetptLimit = null;
+    protected $coolLowerSetptLimit = null;
+    protected $coolUpperSetptLimit = null;
+    protected $scheduleHeatSp = null;
+    protected $scheduleCoolSp = null;
+    protected $switchAutoAllowed = null;
+    protected $switchCoolAllowed = null;
+    protected $switchOffAllowed = null;
+    protected $switchHeatAllowed = null;
+    protected $switchEmergencyHeatAllowed = null;
+    protected $systemSwitchPosition = null;
+    protected $deadband = null;
+    protected $commercial = null;
+
+
+
     protected $fanStatus;
 
     /** @var array  */
@@ -108,12 +134,26 @@ class Zone
      * @param string $what The parameter to get
      * @return mixed
      * @throws Exception
+     * @throws GuzzleException
      */
     public function __get($what) {
-        if (property_exists($this, $what))
-            return $this->$what;
+        if (!property_exists($this, $what))
+            throw new Exception("No such thing as $what");
 
-        throw new Exception("No such thing");
+        if ($what === 'id')
+            return $this->id;
+
+        if (!isset($this->loadedValues[$what])) {
+//            echo "Loading details for " . $what;
+
+            $this->loadDetails();
+
+        }
+
+        return $this->$what;
+
+
+
     }
 
 
@@ -174,8 +214,15 @@ class Zone
      */
     public function __set($what, $value) {
 
+//        echo "setting " . $what;
+
         if (!in_array($what, self::WRITABLE_ATTRIBUTES))
             return;
+
+        if ($this->__get($what) == $value) {
+//            echo "<br />{$what} not changed.<br />";
+            return;
+        }
 
         $this->_dirty = true;
         $this->$what = $value;
@@ -189,7 +236,7 @@ class Zone
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function getDetails() { // TODO make protected, probably.
+    public function loadDetails() { // TODO make protected, probably.
         $r = $this->context->request("get", "/portal/Device/CheckDataSession/" . $this->id, [
             'headers' => [
                 'X-Requested-With' => 'XMLHttpRequest'
@@ -197,6 +244,8 @@ class Zone
         ]);
 
         $data = json_decode($r->getBody());
+
+//        var_dump($data);
 
         if (!$data->success)
             return false;

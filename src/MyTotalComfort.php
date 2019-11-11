@@ -183,7 +183,7 @@ namespace Tenth {
         {
             if ($location === null) {
                 $location = $this->defaultLocationId;
-            } elseif (get_class($location) === "Location") {
+            } elseif (is_object($location) && get_class($location) === "Location") {
                 $location = $location->getId();
             }
 
@@ -312,10 +312,10 @@ namespace Tenth {
                     'locationId' => $locationId,
                     'name' => $therm[2],
                     'runStatus' => $status, // TODO parse into int?
-                    'dispTempAvailable' => is_numeric($therm[3]),
-                    'dispTemp' => intval($therm[3]),
-                    'indoorHumiAvailable' => is_numeric($therm[4]),
-                    'indoorHumi' => intval($therm[4]),
+                    'dispTemperatureAvailable' => is_numeric($therm[3]),
+                    'dispTemperature' => intval($therm[3]),
+                    'indoorHumiditySensorAvailable' => is_numeric($therm[4]),
+                    'indoorHumidity' => intval($therm[4]),
                     'errors' => $therm[5] // TODO parse into string[].
                 ]);
             }

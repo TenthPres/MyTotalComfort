@@ -69,6 +69,7 @@ class Location
      *
      * @return Zone[] THe Zones contained in the Location.
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws Exception
      */
     public function getZones() {
         return $this->context->getZonesByLocation($this->id);

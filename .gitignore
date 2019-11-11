@@ -2,3 +2,4 @@ test.php
 cookie_jar.txt
 cache.json
 composer.lock
+vendor
