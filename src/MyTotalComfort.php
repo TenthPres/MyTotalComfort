@@ -267,6 +267,8 @@ namespace Tenth {
 
             if ($locationId === null) {
                 preg_match("/\/portal\/([\d]+)\/Zones\/page/", $html, $locationId);
+                if (!isset($locationId[1])) // addresses an issue where zones don't always load the first time.
+                    return $this->loadZonesInLocation($locationId);
                 $locationId = intval($locationId[1]);
             }
 
