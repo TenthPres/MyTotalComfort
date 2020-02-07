@@ -11,34 +11,42 @@ namespace Tenth {
     /**
      * Class MyTotalComfort
      *
-     * The Scope of one object of this class is defined as the bounds of what can be seen by a single user using the web
-     * interface.
+     * The Scope of one object of this class is defined as the bounds of what can be seen by a single user using the TCC
+     * web interface.
      *
      * @package Tenth
      */
     class MyTotalComfort {
+
+        /** @var \GuzzleHttp\Cookie\CookieJarInterface */
         protected $cookieJar = null;
+
+        /** @var Client  */
         protected $client = null;
 
+        /** @var int|null */
         protected $defaultLocationId = null;
 
+        /** @var Location[] */
         protected $locations = [];
 
         /** @var Zone[] */
         protected $zones = [];
 
-        protected $cache;
-
+        /** @var string */
         private $email;
+
+        /** @var string */
         private $password;
 
 
         /**
          * MyTotalComfort constructor.  Pass login arguments.
+         *
          * @param string $email Login email address.
          * @param string $password Login password.
-         * @param \GuzzleHttp\Cookie\CookieJarInterface $cookieJar Optional. Cookie jar to be used if a specific one is
-         * desired.  Useful for allowing logins to persist between script runs.
+         * @param \GuzzleHttp\Cookie\CookieJarInterface $cookieJar Optional. Cookie jar to be used if desired.  Useful
+         * for allowing TCC logins to persist between script runs.  If not provided, one will be created.
          * @param array|object $cache Entity used for caching system state and configuration info.  Can help reduce server calls.
          *
          * @throws Exception Thrown when credentials are invalid.
@@ -204,7 +212,7 @@ namespace Tenth {
 
 
         /**
-         * The login function.  Essentially wraps the web client's request to https://www.mytotalconnectcomfort.com/portal/?timeout=True
+         * The login function.  Wraps the web client's request to https://www.mytotalconnectcomfort.com/portal/?timeout=True
          *
          * @return boolean Whether login was accepted.  Read the error with the $loginError property.
          *
@@ -249,8 +257,8 @@ namespace Tenth {
 
 
         /**
-         * @param $locationId
-         * @return array
+         * @param int $locationId
+         * @return Zone[]
          * @throws \GuzzleHttp\Exception\GuzzleException
          * @throws Exception
          */
@@ -286,10 +294,10 @@ namespace Tenth {
         }
 
         /**
-         * @param $html
-         * @param $pageNumber
-         * @param $locationId
-         * @return array
+         * @param string $html
+         * @param int $pageNumber
+         * @param int $locationId
+         * @return Zone[]
          */
         protected function addZonesFromHtml($html, $pageNumber, $locationId) {
             preg_match_all("/data-id=\"([\d]+)\"[\s\S\R]+<div class=\"location-name\">([^<]+)<[\s\S\R]+([\d\-]{1,3})&deg[\s\S\R]+([\d\-]{1,3})%<\/div[\s\S\R]+\"alert\">([\s\S\R]+)<\/td>/mU", $html, $matches, PREG_SET_ORDER);

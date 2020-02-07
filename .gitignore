@@ -3,3 +3,4 @@ cookie_jar.txt
 cache.json
 composer.lock
 vendor
+phpdoc.phar

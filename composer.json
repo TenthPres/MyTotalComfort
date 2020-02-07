@@ -3,7 +3,7 @@
   "type": "library",
   "description": "Interact with Honeywell Total Comfort Control thermostats and devices.",
   "minimum-stability": "dev",
-  "keywords": ["HVAC", "Honeywell", "IoT", "Home Automation"],
+  "keywords": ["HVAC", "Honeywell", "IoT", "Home Automation", "IIoT"],
   "homepage": "https://github.com/TenthPres/MyTotalComfort",
   "license": "MIT",
   "authors": [
@@ -34,6 +34,6 @@
     "guzzlehttp/guzzle": "^6.2"
   },
   "require-dev": {
-    "phpdocumentor/phpdocumentor": "dev-master"
+    "evert/phpdoc-md" : "~0.2.0"
   }
 }
