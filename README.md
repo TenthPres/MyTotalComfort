@@ -12,16 +12,16 @@ Install with Composer:
     
 (There are notable dev dependencies that you really should only install if you want to auto-generate [documentation](https://github.com/TenthPres/MyTotalComfort/wiki).)
 
-## Cloning, Contributing and Developing
+## Cloning and Documenting
 
 Please clone and contribute, or report bugs should you find them.  
-
-## Documentation
 
 This repository has a script ([makedocs.php](makedocs.php)) intended to automatically generate and publish documentation changes based on doc blocks.  You can find [that documentation in the Wiki](https://github.com/TenthPres/MyTotalComfort/wiki).
 As far as the repository is concerned, the documentation directory is a submodule.  To clone everything all in one shot, add the `--recursive` switch to your clone command: 
 
     git clone --recursive https://github.com/TenthPres/MyTotalComfort.git
+    
+There's currently an issue when generating documentation in PHP 7.4 that makes the formatting very poor.  Other versions seem to work fine, and the package itself also works fine in 7.4.
 
 ## Disclaimers
 
