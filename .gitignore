@@ -4,3 +4,5 @@ cache.json
 composer.lock
 vendor
 phpdoc.phar
+.idea/workspace.xml
+.idea/deployment.xml
