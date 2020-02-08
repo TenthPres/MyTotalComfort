@@ -34,6 +34,6 @@
     "guzzlehttp/guzzle": "^6.2"
   },
   "require-dev": {
-    "evert/phpdoc-md" : "~0.2.0"
+    "skayo/phpdoc-md" : "~0.2.0"
   }
 }

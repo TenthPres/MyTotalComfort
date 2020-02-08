@@ -18,9 +18,13 @@ use Tenth\MyTotalComfort;
  */
 class Location
 {
+    /** @var MyTotalComfort */
     protected $context;
+
+    /** @var int */
     protected $id;
 
+    /** @var string */
     protected $name;
 
 
@@ -29,7 +33,7 @@ class Location
      *
      * @param MyTotalComfort $tccObject Provide the user context through which this information is gleaned.
      * @param int $id  The location ID number
-     * @param array $data  Data to be inserted into the Location at construction.
+     * @param mixed[] $data  Data to be inserted into the Location at construction.
      */
     public function __construct(MyTotalComfort $tccObject, $id, $data = []) {
 

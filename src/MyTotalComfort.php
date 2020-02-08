@@ -47,11 +47,11 @@ namespace Tenth {
          * @param string $password Login password.
          * @param \GuzzleHttp\Cookie\CookieJarInterface $cookieJar Optional. Cookie jar to be used if desired.  Useful
          * for allowing TCC logins to persist between script runs.  If not provided, one will be created.
-         * @param array|object $cache Entity used for caching system state and configuration info.  Can help reduce server calls.
+         * @return void
          *
          * @throws Exception Thrown when credentials are invalid.
          */
-        public function __construct($email, $password, $cookieJar = null, &$cache = [])
+        public function __construct($email, $password, $cookieJar = null)
         {
 
             if (!filter_var($email, FILTER_VALIDATE_EMAIL))
@@ -82,15 +82,13 @@ namespace Tenth {
          *
          * @param string $method 'POST', 'GET', etc.
          * @param string $uri The URI to which the request is to be sent.
-         * @param array $options Guzzle Client options.
+         * @param mixed[] $options Guzzle Client options.
          *
-         * @return mixed|\Psr\Http\Message\ResponseInterface
+         * @return \Psr\Http\Message\ResponseInterface
          *
          * @throws \GuzzleHttp\Exception\GuzzleException
          */
         public function request($method, $uri, $options = []) {
-//            $options[RequestOptions::SYNCHRONOUS] = true;  Redundant by using non-synchronous call.
-
             $resp = $this->client->request($method, "https://www.mytotalconnectcomfort.com" . $uri, $options);
 
             if (strpos($resp->getBody(), "Forgot Password?") !== false)
@@ -161,7 +159,7 @@ namespace Tenth {
         /**
          * Gets a particular zone within the user context.
          *
-         * @param int|null $id The ID number of the zone desired.  Required.
+         * @param int $id The ID number of the zone desired.  Required.
          * @param mixed[] $dataFromCaller Data to be included in the Zone gleaned from the caller.
          * @return Zone
          */
