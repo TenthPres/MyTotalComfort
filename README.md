@@ -1,5 +1,11 @@
 # My Total Comfort
 
+![Travis (.org)](https://img.shields.io/travis/tenthpres/mytotalcomfort?label=tests&style=flat-square)
+![PHP from Travis config](https://img.shields.io/travis/php-v/tenthpres/mytotalcomfort?style=flat-square)
+![Coveralls github](https://img.shields.io/coveralls/github/tenthpres/mytotalcomfort?style=flat-square)
+<!--![GitHub](https://img.shields.io/github/license/tenthpres/mytotalcomfort?style=flat-square) -->
+
+
 This is a PHP library for working with [Honeywell's Total Connect Comfort interface](https://www.mytotalconnectcomfort.com) 
 (TCC). It authenticates using user credentials and can provide data available through the web interface and more.    
 
