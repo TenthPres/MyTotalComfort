@@ -2,9 +2,7 @@
 
 namespace Tenth\MyTotalComfort;
 
-
 use Tenth\MyTotalComfort;
-
 
 /**
  * Class Location
@@ -34,8 +32,10 @@ class Location
      * @param MyTotalComfort $tccObject Provide the user context through which this information is gleaned.
      * @param int $id  The location ID number
      * @param mixed[] $data  Data to be inserted into the Location at construction.
+     * @return void
      */
-    public function __construct(MyTotalComfort $tccObject, $id, $data = []) {
+    public function __construct(MyTotalComfort $tccObject, $id, $data = [])
+    {
 
         $this->context = $tccObject;
         $this->id = $id;
@@ -53,7 +53,8 @@ class Location
      *
      * @return string The name of the location.
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->name;
     }
 
@@ -63,7 +64,8 @@ class Location
      *
      * @return int The ID of the Location
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -75,7 +77,8 @@ class Location
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws Exception
      */
-    public function getZones() {
+    public function getZones()
+    {
         return $this->context->getZonesByLocation($this->id);
     }
 }

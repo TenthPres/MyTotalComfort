@@ -16,7 +16,8 @@ namespace Tenth {
      *
      * @package Tenth
      */
-    class MyTotalComfort {
+    class MyTotalComfort
+    {
 
         /** @var \GuzzleHttp\Cookie\CookieJarInterface */
         protected $cookieJar = null;
@@ -54,13 +55,15 @@ namespace Tenth {
         public function __construct($email, $password, $cookieJar = null)
         {
 
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 throw new Exception("A valid email address was not provided for login.");
+            }
 
-            if ($cookieJar === null)
+            if ($cookieJar === null) {
                 $this->cookieJar = new \GuzzleHttp\Cookie\CookieJar();
-            else
+            } else {
                 $this->cookieJar = $cookieJar;
+            }
 
             $this->email = $email;
             $this->password = $password;
@@ -88,11 +91,13 @@ namespace Tenth {
          *
          * @throws \GuzzleHttp\Exception\GuzzleException
          */
-        public function request($method, $uri, $options = []) {
+        public function request($method, $uri, $options = [])
+        {
             $resp = $this->client->request($method, "https://www.mytotalconnectcomfort.com" . $uri, $options);
 
-            if (strpos($resp->getBody(), "Forgot Password?") !== false)
+            if (strpos($resp->getBody(), "Forgot Password?") !== false) {
                 $this->login();
+            }
 
             return $resp;
         }
@@ -109,8 +114,8 @@ namespace Tenth {
          * @throws \GuzzleHttp\Exception\GuzzleException
          * @throws Exception
          */
-        public function getLocations($reload = true) {
-
+        public function getLocations($reload = true)
+        {
             if ($reload) {
                 $r = $this->request('get', '/portal/Locations');
                 $body = $r->getBody();
@@ -121,8 +126,9 @@ namespace Tenth {
                 $locIdMatches = $locIdMatches[1];
                 $locNameMatches = $locNameMatches[1];
 
-                if (count($locIdMatches) !== count($locNameMatches))
+                if (count($locIdMatches) !== count($locNameMatches)) {
                     throw new Exception("Could not parse locations.");
+                }
 
                 foreach ($locIdMatches as $i => $id) {
                     $this->locations[$id] = $this->getLocation($id, ['name' => $locNameMatches[$i]]);
@@ -142,9 +148,11 @@ namespace Tenth {
          * @param mixed[] $dataFromCaller Data to be included in the Location gleaned from the caller.
          * @return Location
          */
-        public function getLocation($id = null, $dataFromCaller = []) {
-            if ($id === null)
+        public function getLocation($id = null, $dataFromCaller = [])
+        {
+            if ($id === null) {
                 $id = $this->defaultLocationId;
+            }
 
             $id = intval($id);
 
@@ -163,7 +171,8 @@ namespace Tenth {
          * @param mixed[] $dataFromCaller Data to be included in the Zone gleaned from the caller.
          * @return Zone
          */
-        public function getZone($id, $dataFromCaller = []) {
+        public function getZone($id, $dataFromCaller = [])
+        {
             $id = intval($id);
 
             if (!isset($this->zones[$id])) {
@@ -199,24 +208,26 @@ namespace Tenth {
                 $zil = $this->loadZonesInLocation($location);
             } else {
                 foreach ($this->zones as $id => $z) {
-                    if ($z->getLocationId() === $location)
+                    if ($z->getLocationId() === $location) {
                         $zil[$id] = &$z;
+                    }
                 }
             }
 
             return $zil;
-
         }
 
 
         /**
-         * The login function.  Wraps the web client's request to https://www.mytotalconnectcomfort.com/portal/?timeout=True
+         * The login function.  Wraps the client's request to https://www.mytotalconnectcomfort.com/portal/?timeout=True
          *
          * @return boolean Whether login was accepted.  Read the error with the $loginError property.
          *
          * @throws \GuzzleHttp\Exception\GuzzleException
+         * @throws Exception For login failures
          */
-        protected function login() {
+        protected function login()
+        {
             /* Execute Login */
             $r = $this->client->request('POST', 'https://www.mytotalconnectcomfort.com/portal/', [
                 'form_params' => [
@@ -231,8 +242,10 @@ namespace Tenth {
                     'Host' => 'www.mytotalconnectcomfort.com',
                     'Content-Type' => 'application/x-www-form-urlencoded',
                     'Upgrade-Insecure-Requests' => 1,
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36',
-                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)' .
+                        ' Chrome/74.0.3729.157 Safari/537.36',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;' .
+                        'q=0.8,application/signed-exchange;v=b3',
                     'Accept-Encoding' => 'gzip, deflate, br',
                     'Cache-Control' => 'no-cache',
                     'DNT' => '1'
@@ -247,10 +260,11 @@ namespace Tenth {
                 }
             ]);
             
-            $r->getBody(); // this call has to be present, or Guzzle doesn't seem to actually send the request. 
+            if (strpos($r->getBody(), "Login was unsuccessful.") > 0) {
+                throw new Exception("Login failed.");
+            }
 
             return true;
-
         }
 
 
@@ -260,8 +274,8 @@ namespace Tenth {
          * @throws \GuzzleHttp\Exception\GuzzleException
          * @throws Exception
          */
-        protected function loadZonesInLocation($locationId) {
-
+        protected function loadZonesInLocation($locationId)
+        {
             if ($locationId !== null) {
                 $url = '/portal/' . $locationId . '/Zones';
             } else {
@@ -273,14 +287,17 @@ namespace Tenth {
 
             if ($locationId === null) {
                 preg_match("/\/portal\/([\d]+)\/Zones\/page/", $html, $locationId);
-                if (!isset($locationId[1])) // addresses an issue where zones don't always load the first time.
+                if (!isset($locationId[1])) { // addresses an issue where zones don't always load the first time.
                     return $this->loadZonesInLocation($locationId);
+                }
                 $locationId = intval($locationId[1]);
             }
 
             $zil = $this->addZonesFromHtml($html, 1, $locationId);
 
-            if (preg_match_all("/'pageNumber'><a href='(\/portal\/[0-9]+\/Zones\/page([0-9]+))'>/", $resp->getBody(), $pageMatches, PREG_SET_ORDER) > 0) {
+            $pagePattern = "/'pageNumber'><a href='(\/portal\/[0-9]+\/Zones\/page([0-9]+))'>/";
+
+            if (preg_match_all($pagePattern, $resp->getBody(), $pageMatches, PREG_SET_ORDER) > 0) {
                 foreach ($pageMatches as $page) {
                     $r = $this->request('GET', $page[1]);
                     $zil = array_merge($zil, $this->addZonesFromHtml($r->getBody(), $page[2], $locationId));
@@ -288,7 +305,6 @@ namespace Tenth {
             }
 
             return $zil;
-
         }
 
         /**
@@ -297,8 +313,13 @@ namespace Tenth {
          * @param int $locationId
          * @return Zone[]
          */
-        protected function addZonesFromHtml($html, $pageNumber, $locationId) {
-            preg_match_all("/data-id=\"([\d]+)\"[\s\S\R]+<div class=\"location-name\">([^<]+)<[\s\S\R]+([\d\-]{1,3})&deg[\s\S\R]+([\d\-]{1,3})%<\/div[\s\S\R]+\"alert\">([\s\S\R]+)<\/td>/mU", $html, $matches, PREG_SET_ORDER);
+        protected function addZonesFromHtml($html, $pageNumber, $locationId)
+        {
+            $zonePattern = "/data-id=\"([\d]+)\"[\s\S\R]+" .
+                "<div class=\"location-name\">([^<]+)<[\s\S\R]+([\d\-]{1,3})&deg[\s\S\R]+([\d\-]{1,3})%" .
+                "<\/div[\s\S\R]+\"alert\">([\s\S\R]+)<\/td>/mU";
+
+            preg_match_all($zonePattern, $html, $matches, PREG_SET_ORDER);
 
             $pageNumber = intval($pageNumber);
             $locationId = intval($locationId);
@@ -306,15 +327,15 @@ namespace Tenth {
             $zones = [];
 
             foreach ($matches as $therm) {
+                preg_match("/(\w{4,7})Icon\" style=\"\"/", $therm[0], $status);
 
-                preg_match("/(\w{4,7})Icon\" style=\"\"/", $therm[0],$status);
-
-                if ($status)
+                if ($status) {
                     $status = $status[1];
-                else
+                } else {
                     $status = null;
+                }
 
-                $zones[] = $this->getZone($therm[1],[
+                $zones[] = $this->getZone($therm[1], [
                     'zoneId' => $therm[1],
                     'page' => $pageNumber,
                     'locationId' => $locationId,
@@ -330,10 +351,5 @@ namespace Tenth {
 
             return $zones;
         }
-
-
     }
-
-
-
 }

@@ -1,12 +1,10 @@
 <?php
 
-
 namespace Tenth\MyTotalComfort;
 
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
 use Tenth\MyTotalComfort;
-
 
 /**
  * Class Zone Represents a single Zone, which generally means a single thermostat.
@@ -14,54 +12,56 @@ use Tenth\MyTotalComfort;
  * @package Tenth\MyTotalComfort
  *
  * @property-read string $name The name of the zone.
- * @property-read bool $gatewayIsLost Whether the connection to the gateway has been lost.  
- * @property-read bool $dispTemperatureAvailable Whether the indoor temperature is available. 
- * @property-read string $displayUnits The units used for temperature.  Values are "F" or "C"  
- * @property-read int $dispTemperature The indoor temperature.  
- * @property-read bool $indoorHumiditySensorAvailable Whether an indoor humidity sensor is present and available. 
- * @property-read bool $indoorHumiditySensorNotFault Whether an indoor humidity sensor is working properly. 
- * @property-read int $indoorHumidity Indoor relative humidity. 
- * @property-read int $indoorHumidStatus UNKNOWN 
- * @property-read int $equipmentOutputStatus UNKNOWN 
- * @property-read int $outdoorHumidStatus UNKNOWN 
- * @property-read int $outdoorHumidity Outdoor relative humidity 
- * @property-read bool $outdoorHumidityAvailable Whether outdoor humidity information is available 
- * @property-read int $outdoorSensorNotFault True if the outdoor humidity sensor is not in a fault state 
- * @property-read int $outdoorTempStatus UNKNOWN 
- * @property-read int $outdoorTemperature Outdoor temperature 
- * @property-read int $outdoorTemperatureAvailable Whether the outdoor temperature is available 
- * @property-read int $outdoorTemperatureSensorNotFault True of the outdoor temperature sensor is not in a fault state  
- * @property int $coolSetpoint Cooling Setpoint 
- * @property-read int $coolLowerSetptLimit Cool Lower Setpoint Limit. 
- * @property-read int $coolUpperSetptLimit Cool Upper Setpoint Limit.  It is not clear if this can be changed by the owner. 
- * @property-read int $scheduleCoolSp Cool setpoint, according to the current period in the schedule. 
- * @property-read int $statusCool UNKNOWN 
- * @property int $heatSetpoint Heat Setpoint 
- * @property-read int $heatLowerSetptLimit Heat Lower Setpoint Limit. It is not clear if this can be changed by the owner. 
- * @property-read int $heatUpperSetptLimit Heat Upper Setpoint Limit. 
- * @property-read int $scheduleHeatSp Heat setpoint, according to the current period in the schedule. 
- * @property-read int $statusHeat UNKNOWN 
- * @property-read int $currentSetpointStatus UNKNOWN 
- * @property-read int $deadband The minimum difference between the heat and cool setpoints. 
- * @property-read bool $dualSetpointStatus UNKNOWN 
- * @property-read bool $setpointChangeAllowed Whether the setpoint can be changed.  It is unclear if this is ever false. 
- * @property int|null $coolNextPeriod When the hold if there is one, should end for cooling.  Counted as 15-minute blocks from midnight.  e.g. 8:15am = 8 * 4 + 1 = 33  
- * @property int|null $heatNextPeriod When the hold if there is one, should end for heating.  Counted as 15-minute blocks from midnight.  e.g. 8:15am = 8 * 4 + 1 = 33  
- * @property bool $hold Whether a temporary hold is in place on the zone. 
- * @property-read bool $holdUntilCapable Whether the thermostat is capable of being set to hold until a particular time. 
- * @property-read bool $isInVacationHoldMode Whether the thermostat is in a vacation hold. 
- * @property-read int $temporaryHoldUntilTime UNKNOWN 
- * @property-read int $vacationHold UNKNOWN 
- * @property-read bool $vacationHoldCancelable UNKNOWN 
- * @property-read int $vacationHoldUntilTime UNKNOWN 
+ * @property-read bool $gatewayIsLost Whether the connection to the gateway has been lost.
+ * @property-read bool $dispTemperatureAvailable Whether the indoor temperature is available.
+ * @property-read string $displayUnits The units used for temperature.  Values are "F" or "C"
+ * @property-read int $dispTemperature The indoor temperature.
+ * @property-read bool $indoorHumiditySensorAvailable Whether an indoor humidity sensor is present and available.
+ * @property-read bool $indoorHumiditySensorNotFault Whether an indoor humidity sensor is working properly.
+ * @property-read int $indoorHumidity Indoor relative humidity.
+ * @property-read int $indoorHumidStatus UNKNOWN
+ * @property-read int $equipmentOutputStatus UNKNOWN
+ * @property-read int $outdoorHumidStatus UNKNOWN
+ * @property-read int $outdoorHumidity Outdoor relative humidity
+ * @property-read bool $outdoorHumidityAvailable Whether outdoor humidity information is available
+ * @property-read int $outdoorSensorNotFault True if the outdoor humidity sensor is not in a fault state
+ * @property-read int $outdoorTempStatus UNKNOWN
+ * @property-read int $outdoorTemperature Outdoor temperature
+ * @property-read int $outdoorTemperatureAvailable Whether the outdoor temperature is available
+ * @property-read int $outdoorTemperatureSensorNotFault True of the outdoor temperature sensor is not in a fault state
+ * @property int $coolSetpoint Cooling Setpoint
+ * @property-read int $coolLowerSetptLimit Cool Lower Setpoint Limit.
+ * @property-read int $coolUpperSetptLimit Cool Upper Setpoint Limit.  It is not clear if this can be changed.
+ * @property-read int $scheduleCoolSp Cool setpoint, according to the current period in the schedule.
+ * @property-read int $statusCool UNKNOWN
+ * @property int $heatSetpoint Heat Setpoint
+ * @property-read int $heatLowerSetptLimit Heat Lower Setpoint Limit. It is not clear if this can be changed.
+ * @property-read int $heatUpperSetptLimit Heat Upper Setpoint Limit.
+ * @property-read int $scheduleHeatSp Heat setpoint, according to the current period in the schedule.
+ * @property-read int $statusHeat UNKNOWN
+ * @property-read int $currentSetpointStatus UNKNOWN
+ * @property-read int $deadband The minimum difference between the heat and cool setpoints.
+ * @property-read bool $dualSetpointStatus UNKNOWN
+ * @property-read bool $setpointChangeAllowed Whether the setpoint can be changed.  It is unclear if this is ever false.
+ * @property int|null $coolNextPeriod When the hold if there is one, should end for cooling.  Counted as 15-minute
+ *                  blocks from midnight.  e.g. 8:15am = 8 * 4 + 1 = 33
+ * @property int|null $heatNextPeriod When the hold if there is one, should end for heating.  Counted as 15-minute
+ *                  blocks from midnight.  e.g. 8:15am = 8 * 4 + 1 = 33
+ * @property bool $hold Whether a temporary hold is in place on the zone.
+ * @property-read bool $holdUntilCapable Whether the thermostat is capable of being set to hold until a particular time.
+ * @property-read bool $isInVacationHoldMode Whether the thermostat is in a vacation hold.
+ * @property-read int $temporaryHoldUntilTime UNKNOWN
+ * @property-read int $vacationHold UNKNOWN
+ * @property-read bool $vacationHoldCancelable UNKNOWN
+ * @property-read int $vacationHoldUntilTime UNKNOWN
  * @property-read boolean $commercial Whether the application is commercial.
- * @property-read boolean $scheduleCapable Whether the thermostat is capable of running a schedule. 
- * @property-read bool $switchAutoAllowed Whether the system can be turned to Auto mode. 
- * @property-read bool $switchCoolAllowed Whether the system can be turned to Cool mode. 
- * @property-read bool $switchHeatAllowed Whether the system can be turned to Heat mode. 
- * @property-read bool $switchEmergencyHeatAllowed Whether the system can be turned to Emergency Heat mode. (For Heat Pumps, mostly.) 
- * @property-read bool $switchOffAllowed Whether the system can be turned to Off mode.  It is not clear if this is ever false. 
- * @property-read int $systemSwitchPosition Current position of the system switch.  Values not entirely known.  
+ * @property-read boolean $scheduleCapable Whether the thermostat is capable of running a schedule.
+ * @property-read bool $switchAutoAllowed Whether the system can be turned to Auto mode.
+ * @property-read bool $switchCoolAllowed Whether the system can be turned to Cool mode.
+ * @property-read bool $switchHeatAllowed Whether the system can be turned to Heat mode.
+ * @property-read bool $switchEmergencyHeatAllowed Whether the system can be turned to Emergency Heat mode. (Heat Pumps)
+ * @property-read bool $switchOffAllowed Whether the system can be turned to Off mode.  Possibly always true.
+ * @property-read int $systemSwitchPosition Current position of the system switch.  Values not entirely known.
  * @property-read int $fanStatus UNKNOWN
  */
 class Zone
@@ -70,8 +70,8 @@ class Zone
     /** @var string[] The names of Zone properties which are writable.  */
     const WRITABLE_ATTRIBUTES = ['coolSetpoint', 'heatSetpoint', 'coolNextPeriod', 'heatNextPeriod', 'hold'];
 
-    /** @var bool $_dirty When true, indicates that there are changes to be saved back to the server. */
-    protected $_dirty = false;
+    /** @var bool $isDirty When true, indicates that there are changes to be saved back to the server. */
+    protected $isDirty = false;
 
     /** @var MyTotalComfort */
     protected $context;
@@ -81,6 +81,7 @@ class Zone
 
     /** @var int */
     protected $locationId;
+
 
 
     /* CONNECTIVITY AND IDENTIFICATION */
@@ -255,17 +256,30 @@ class Zone
     /** @var bool Whether the system can be turned to Off mode.  It is not clear if this is ever false. */
     protected $switchOffAllowed;
 
-    /** @var int Current position of the system switch.  Values not entirely known.  */
+    /** @var int Current position of the system switch.  Values not known.  */
     protected $systemSwitchPosition;
 
 
+
+    /* ALERTS */
+    /** @var Alert[] */
     protected $alerts = [];
+
+
+    /* STATUS */
+    /** @var int Current system running mode */
     protected $runStatus = 0;
 
+    /** @var int Current fan running mode */
     protected $fanStatus;
 
-    /** @var array  */
+
+
+    /* CACHE CONTROL */
+    /** @var string[]  */
     protected $loadedValues = [];
+
+
 
 
     /**
@@ -273,7 +287,8 @@ class Zone
      *
      * @return int Location ID
      */
-    public function getLocationId() {
+    public function getLocationId()
+    {
         return $this->locationId;
     }
 
@@ -284,10 +299,10 @@ class Zone
      * @param MyTotalComfort $tccObject Provide the user context through which this information is gleaned.
      * @param int $id  The location ID number
      * @param array $data  Data to be inserted into the Location at construction.
-     * @returns void
+     * @return void
      */
-    /* @noinspection PhpMissingParentConstructorInspection */
-    public function __construct(MyTotalComfort $tccObject, $id, $data = []) {
+    public function __construct(MyTotalComfort $tccObject, $id, $data = [])
+    {
 
         $this->context = $tccObject;
         $this->id = $id;
@@ -301,9 +316,10 @@ class Zone
      *
      * @param mixed[] $dataArray
      */
-    public function setMultiple(array $dataArray) {
+    public function setMultiple(array $dataArray)
+    {
         foreach ($dataArray as $k => $v) {
-            $k = strtolower($k[0]) . substr($k,1);
+            $k = strtolower($k[0]) . substr($k, 1);
 
             if (property_exists($this, $k) && $k !== 'id') {
                 $this->loadedValues[$k] = true;
@@ -316,9 +332,10 @@ class Zone
     /**
      * Cleans up data to keep API results consistent and logical.
      *
-     * @returns void
+     * @return void
      */
-    protected function validateDetailValues() {
+    protected function validateDetailValues()
+    {
         if (!$this->dispTemperatureAvailable) {
             $this->dispTemperature = false;
             $this->displayUnits = '';
@@ -339,35 +356,31 @@ class Zone
         if (!$this->switchHeatAllowed) {
             $this->heatSetpoint = false;
         }
-
     }
 
     /**
-     * Getter.  For the many, many readable parameters.  The purpose of this function is to avoid API calls until actually needed.
+     * Getter.  For the many, many readable parameters. The purpose of this function is to avoid API calls until needed.
      *
      * @param string $what The parameter to get
      * @return mixed The requested parameter
      * @throws Exception
      * @throws GuzzleException
      */
-    public function __get($what) {
-        if (!property_exists($this, $what))
+    public function __get($what)
+    {
+        if (!property_exists($this, $what)) {
             throw new Exception("No such thing as $what");
+        }
 
-        if ($what === 'id')
+        if ($what === 'id') {
             return $this->id;
+        }
 
         if (!isset($this->loadedValues[$what])) {
-//            echo "Loading details for " . $what;
-
             $this->loadDetails();
-
         }
 
         return $this->$what;
-
-
-
     }
 
 
@@ -376,14 +389,16 @@ class Zone
      *
      * @return bool True on success, false on failure.  Will return true if there are no changes to submit.
      */
-    public function submitChanges() {
+    public function submitChanges()
+    {
 
-        if (!$this->_dirty)
+        if (!$this->isDirty) {
             return true;
+        }
 
         try {
             $r = $this->context->request('POST', '/portal/Device/SubmitControlScreenChanges', [
-                \GuzzleHttp\RequestOptions::JSON => [
+                RequestOptions::JSON => [
                     'CoolNextPeriod' => $this->coolNextPeriod,
                     'CoolSetpoint' => ($this->hold ? $this->coolSetpoint : null),
                     'DeviceID' => $this->id,
@@ -400,7 +415,8 @@ class Zone
                     'Host' => 'www.mytotalconnectcomfort.com',
                     'Content-Type' => 'application/json; charset=UTF-8',
                     'Upgrade-Insecure-Requests' => 1,
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)' .
+                        ' Chrome/74.0.3729.157 Safari/537.36',
                     'Accept' => 'application/json, text/javascript, */*; q=0.01',
                     'Accept-Encoding' => 'gzip, deflate, br',
                     'Cache-Control' => 'no-cache',
@@ -411,18 +427,24 @@ class Zone
 
 
             if ($r->getBody()->__toString() === "{\"success\":1}") {
-                $this->_dirty = false;
+                $this->isDirty = false;
                 return true;
             }
-
         } catch (GuzzleException $e) {
-
         }
         return false;
     }
 
 
-    public function __destruct() {
+    /**
+     *
+     * Submits any pending changes before the object is destroyed.
+     *
+     * @return void
+     *
+     */
+    public function __destruct()
+    {
         $this->submitChanges();
     }
 
@@ -434,21 +456,19 @@ class Zone
      * @param mixed $value The value to set the parameter to
      * @throws Exception
      * @throws GuzzleException
-     * @returns void
+     * @return void
      */
-    public function __set($what, $value) {
-
-//        echo "setting " . $what;
-
-        if (!in_array($what, self::WRITABLE_ATTRIBUTES))
-            return;
-
-        if ($this->__get($what) == $value) {
-//            echo "<br />{$what} not changed.<br />";
+    public function __set($what, $value)
+    {
+        if (!in_array($what, self::WRITABLE_ATTRIBUTES)) {
             return;
         }
 
-        $this->_dirty = true;
+        if ($this->__get($what) == $value) {
+            return;
+        }
+
+        $this->isDirty = true;
         $this->$what = $value;
 
         if ($what === "heatSetpoint" || $what === "coolSetpoint") {
@@ -463,7 +483,8 @@ class Zone
      * @internal
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function loadDetails() { // TODO make protected, probably.
+    protected function loadDetails()
+    {
         $r = $this->context->request("get", "/portal/Device/CheckDataSession/" . $this->id, [
             'headers' => [
                 'X-Requested-With' => 'XMLHttpRequest'
@@ -472,8 +493,9 @@ class Zone
 
         $data = json_decode($r->getBody());
 
-        if (!$data->success)
+        if (!$data->success) {
             return false;
+        }
 
         $this->setMultiple((array)$data->latestData->uiData);
         $this->setMultiple((array)$data->latestData->fanData);
@@ -484,10 +506,10 @@ class Zone
 
         // TODO parse alerts.
 
+        var_dump($data);
+
         $this->validateDetailValues();
 
         return true;
-
     }
-
 }

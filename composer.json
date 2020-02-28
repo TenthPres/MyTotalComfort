@@ -31,9 +31,22 @@
     ]
   },
   "require": {
-    "guzzlehttp/guzzle": "^6.2"
+    "guzzlehttp/guzzle": "^6.2",
+    "ext-json": "*"
   },
   "require-dev": {
-    "skayo/phpdoc-md" : "~0.2.0"
+    "skayo/phpdoc-md" : "~0.2.0",
+    "phpunit/phpunit": "8.5.2",
+    "phpcompatibility/php-compatibility": "*",
+    "squizlabs/php_codesniffer": "3.*"
+  },
+  "scripts": {
+    "phpcs": "phpcs --standard=phpcs_ruleset.xml"
+  },
+  "prefer-stable": true,
+  "config": {
+    "platform": {
+      "php": "5.6^"
+    }
   }
 }
