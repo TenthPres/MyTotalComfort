@@ -6,3 +6,5 @@ phpdoc.phar
 .idea/workspace.xml
 .idea/deployment.xml
 /tests/MyTotalComfortRealData.test.php
+/.phpunit.result.cache
+/tests/reports/

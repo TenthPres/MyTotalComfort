@@ -12,6 +12,10 @@
         <directory suffix=".test.php">tests</directory>
     </testsuite>
 
+    <logging>
+        <log type="coverage-php" target="tests/reports/coverage.cov"/>
+    </logging>
+
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>

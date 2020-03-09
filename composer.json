@@ -39,7 +39,8 @@
     "skayo/phpdoc-md" : "~0.2.0",
     "phpunit/phpunit": ">=5.0",
     "phpcompatibility/php-compatibility": "*",
-    "squizlabs/php_codesniffer": "3.*"
+    "squizlabs/php_codesniffer": "3.*",
+    "php-coveralls/php-coveralls": "^2.2"
   },
   "scripts": {
     "phpcs": "phpcs --standard=phpcs_ruleset.xml"
