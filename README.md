@@ -2,7 +2,7 @@
 
 [![Travis (.org)](https://img.shields.io/travis/tenthpres/mytotalcomfort?label=tests&style=flat-square)](https://travis-ci.org/TenthPres/MyTotalComfort)
 [![PHP from Travis config](https://img.shields.io/travis/php-v/tenthpres/mytotalcomfort?style=flat-square)](composer.json#L36)
-[![Coveralls github](https://img.shields.io/coveralls/github/tenthpres/mytotalcomfort?style=flat-square)](https://coveralls.io/github/TenthPres/MyTotalComfort)
+[![Coveralls github](https://img.shields.io/coveralls/github/TenthPres/MyTotalComfort?style=flat-square)](https://coveralls.io/github/TenthPres/MyTotalComfort)
 <!--![GitHub](https://img.shields.io/github/license/tenthpres/mytotalcomfort?style=flat-square) -->
 
 
