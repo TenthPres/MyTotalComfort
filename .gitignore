@@ -8,3 +8,4 @@ phpdoc.phar
 /tests/MyTotalComfortRealData.test.php
 /.phpunit.result.cache
 /tests/reports/
+/tests/credentials.json

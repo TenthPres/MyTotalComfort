@@ -90,13 +90,16 @@ namespace Tenth {
          * @return \Psr\Http\Message\ResponseInterface
          *
          * @throws \GuzzleHttp\Exception\GuzzleException
+         * @throws Exception
          */
         public function request($method, $uri, $options = [])
         {
             $resp = $this->client->request($method, "https://www.mytotalconnectcomfort.com" . $uri, $options);
 
             if (strpos($resp->getBody(), "Forgot Password?") !== false) {
-                $this->login();
+                if ($this->login()) {
+                    return $this->request($method, $uri, $options);
+                }
             }
 
             return $resp;
@@ -116,7 +119,7 @@ namespace Tenth {
          */
         public function getLocations($reload = true)
         {
-            if ($reload) {
+            if ($reload || count($this->locations) === 0) {
                 $r = $this->request('get', '/portal/Locations');
                 $body = $r->getBody();
 
@@ -132,6 +135,10 @@ namespace Tenth {
 
                 foreach ($locIdMatches as $i => $id) {
                     $this->locations[$id] = $this->getLocation($id, ['name' => $locNameMatches[$i]]);
+                }
+
+                if (count($locIdMatches) < 1) {
+                    throw new Exception("No Locations Found.  Locations must be created using the web interface.");
                 }
 
                 $this->defaultLocationId = $locIdMatches[0];
@@ -188,7 +195,7 @@ namespace Tenth {
         /**
          * Gets all of the zones in a single location.
          *
-         * @param int|Location $location A Location object or the id of a location.
+         * @param int|Location $location A Location object or the id of a location.  Uses first location if null.
          * @param bool $reload When true, the list is loaded fresh from the server.
          * @return Zone[]
          * @throws \GuzzleHttp\Exception\GuzzleException
@@ -198,7 +205,7 @@ namespace Tenth {
         {
             if ($location === null) {
                 $location = $this->defaultLocationId;
-            } elseif (is_object($location) && get_class($location) === "Location") {
+            } elseif (is_object($location) && get_class($location) === Location::class) {
                 $location = $location->getId();
             }
 
@@ -226,7 +233,7 @@ namespace Tenth {
          * @throws \GuzzleHttp\Exception\GuzzleException
          * @throws Exception For login failures
          */
-        protected function login()
+        protected function login($recurr = 0)
         {
             /* Execute Login */
             $r = $this->client->request('POST', 'https://www.mytotalconnectcomfort.com/portal/', [
@@ -261,7 +268,15 @@ namespace Tenth {
             ]);
             
             if (strpos($r->getBody(), "Login was unsuccessful.") > 0) {
-                throw new Exception("Login failed.");
+                throw new Exception("Login failed.  System Error.");
+            }
+
+            if (strpos($r->getBody(), "Forgot Password?") !== false) {
+                if ($recurr < 2) {
+                    $this->login($recurr++);
+                } else {
+                    throw new Exception("Login failed.  Could not handle cookies.");
+                }
             }
 
             return true;
@@ -287,9 +302,9 @@ namespace Tenth {
 
             if ($locationId === null) {
                 preg_match("/\/portal\/([\d]+)\/Zones\/page/", $html, $locationId);
-                if (!isset($locationId[1])) { // addresses an issue where zones don't always load the first time.
-                    return $this->loadZonesInLocation($locationId);
-                }
+//                if (!isset($locationId[1])) { // addresses an issue where zones don't always load the first time.
+//                    return $this->loadZonesInLocation($locationId);
+//                }  TODO remove if unneeded.
                 $locationId = intval($locationId[1]);
             }
 
