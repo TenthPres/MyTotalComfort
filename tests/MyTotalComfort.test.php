@@ -59,7 +59,7 @@ class MyTotalComfortTests extends TestCase {
 
     public function test_login() {
         $session = new MyTotalComfort($this->getEmail(), $this->getPassword());
-        $this->assertIsArray($session->getLocations());
+        $this->assertSame("array", gettype($session->getLocations()));
         return $session;
     }
 
