@@ -330,9 +330,9 @@ namespace Tenth {
          */
         protected function addZonesFromHtml($html, $pageNumber, $locationId)
         {
-            $zonePattern = "/data-id=\"([\d]+)\"[\s\S\R]+" .
-                "<div class=\"location-name\">([^<]+)<[\s\S\R]+([\d\-]{1,3})&deg[\s\S\R]+([\d\-]{1,3})%" .
-                "<\/div[\s\S\R]+\"alert\">([\s\S\R]+)<\/td>/mU";
+            $zonePattern = "/data-id=\"([\d]+)\"[\s\S]+" .
+                "<div class=\"location-name\">([^<]+)<[\s\S]+([\d\-]{1,3})&deg[\s\S]+([\d\-]{1,3})%" .
+                "<\/div[\s\S]+\"alert\">([\s\S]+)<\/td>/mUX";
 
             preg_match_all($zonePattern, $html, $matches, PREG_SET_ORDER);
 
