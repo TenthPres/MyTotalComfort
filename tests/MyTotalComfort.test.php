@@ -53,7 +53,8 @@ class MyTotalComfortTests extends TestCase {
     }
 
     public function test_constructor() {
-        $this->assertInstanceOf(MyTotalComfort::class, new MyTotalComfort($this->getEmail(), $this->getPassword()));
+        $this->assertSame(MyTotalComfort::class,
+            get_class(new MyTotalComfort($this->getEmail(), $this->getPassword())));
     }
 
     public function test_login() {
@@ -65,11 +66,12 @@ class MyTotalComfortTests extends TestCase {
     /**
      * @depends test_login
      * @param MyTotalComfort $session
+     * @return MyTotalComfort\Location
      */
     public function test_getLocation(MyTotalComfort $session)
     {
         $loc = $session->getLocation();
-        $this->assertInstanceOf(MyTotalComfort\Location::class, $loc);
+        $this->assertSame(MyTotalComfort\Location::class, get_class($loc));
         return $loc;
     }
 
@@ -77,10 +79,13 @@ class MyTotalComfortTests extends TestCase {
     /**
      * @depends test_login
      * @param MyTotalComfort $session
+     * @return null
+     * @throws MyTotalComfort\Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function test_getZonesByLocationDefault(MyTotalComfort $session)
     {
-        $this->assertInstanceOf(MyTotalComfort\Zone::class, $session->getZonesByLocation()[0]);
+        $this->assertSame(MyTotalComfort\Zone::class, get_class($session->getZonesByLocation()[0]));
         return null;
     }
 
@@ -88,11 +93,14 @@ class MyTotalComfortTests extends TestCase {
      * @depends test_login
      * @depends test_getLocation
      * @param MyTotalComfort $session
+     * @param MyTotalComfort\Location $location
+     * @throws MyTotalComfort\Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function test_getZonesByLocationProvidedId(MyTotalComfort $session, MyTotalComfort\Location $location)
     {
         $locs = $session->getLocations();
-        $this->assertInstanceOf(MyTotalComfort\Zone::class, $session->getZonesByLocation($location->getId())[0]);
+        $this->assertSame(MyTotalComfort\Zone::class, get_class($session->getZonesByLocation($location->getId())[0]));
     }
 
 
@@ -100,21 +108,27 @@ class MyTotalComfortTests extends TestCase {
      * @depends test_login
      * @depends test_getLocation
      * @param MyTotalComfort $session
+     * @param MyTotalComfort\Location $location
+     * @throws MyTotalComfort\Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function test_getZonesByLocationProvidedObj(MyTotalComfort $session, MyTotalComfort\Location $location)
     {
-        $this->assertInstanceOf(MyTotalComfort\Zone::class, $session->getZonesByLocation($location)[0]);
+        $this->assertSame(MyTotalComfort\Zone::class, get_class($session->getZonesByLocation($location)[0]));
     }
 
     /**
      * @depends test_login
      * @depends test_getLocation
      * @param MyTotalComfort $session
+     * @param MyTotalComfort\Location $location
+     * @throws MyTotalComfort\Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function test_getZonesByLocationNoReload(MyTotalComfort $session, MyTotalComfort\Location $location)
     {
         $locs = $session->getZonesByLocation($location, false);
-        $this->assertInstanceOf(MyTotalComfort\Zone::class, array_pop($locs));
+        $this->assertSame(MyTotalComfort\Zone::class, get_class(array_pop($locs)));
     }
 
 }
