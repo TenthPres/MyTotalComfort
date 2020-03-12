@@ -79,7 +79,7 @@ class MyTotalComfortTests extends TestCase
     }
 
     /**
-     * @depends test_login
+     * @depends testLogin
      * @param MyTotalComfort $session
      * @return MyTotalComfort\Location
      */
@@ -92,7 +92,7 @@ class MyTotalComfortTests extends TestCase
 
 
     /**
-     * @depends test_login
+     * @depends testLogin
      * @param MyTotalComfort $session
      * @return null
      * @throws MyTotalComfort\Exception
@@ -105,8 +105,8 @@ class MyTotalComfortTests extends TestCase
     }
 
     /**
-     * @depends test_login
-     * @depends test_getLocation
+     * @depends testLogin
+     * @depends testGetLocation
      * @param MyTotalComfort $session
      * @param MyTotalComfort\Location $location
      * @throws MyTotalComfort\Exception
@@ -122,8 +122,8 @@ class MyTotalComfortTests extends TestCase
 
 
     /**
-     * @depends test_login
-     * @depends test_getLocation
+     * @depends testLogin
+     * @depends testGetLocation
      * @param MyTotalComfort $session
      * @param MyTotalComfort\Location $location
      * @throws MyTotalComfort\Exception
@@ -139,8 +139,8 @@ class MyTotalComfortTests extends TestCase
     }
 
     /**
-     * @depends test_login
-     * @depends test_getLocation
+     * @depends testLogin
+     * @depends testGetLocation
      * @param MyTotalComfort $session
      * @param MyTotalComfort\Location $location
      * @throws MyTotalComfort\Exception
