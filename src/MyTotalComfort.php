@@ -3,8 +3,12 @@
 namespace Tenth {
 
     use GuzzleHttp\Client;
+    use GuzzleHttp\Cookie\CookieJar;
+    use GuzzleHttp\Cookie\CookieJarInterface;
     use GuzzleHttp\Exception\GuzzleException;
     use GuzzleHttp\RequestOptions;
+    use GuzzleHttp\TransferStats;
+    use Psr\Http\Message\ResponseInterface;
     use Tenth\MyTotalComfort\Exception;
     use Tenth\MyTotalComfort\Zone;
     use Tenth\MyTotalComfort\Location;
@@ -20,7 +24,7 @@ namespace Tenth {
     class MyTotalComfort
     {
 
-        /** @var \GuzzleHttp\Cookie\CookieJarInterface */
+        /** @var CookieJarInterface */
         protected $cookieJar = null;
 
         /** @var Client  */
@@ -47,7 +51,7 @@ namespace Tenth {
          *
          * @param string $email Login email address.
          * @param string $password Login password.
-         * @param \GuzzleHttp\Cookie\CookieJarInterface $cookieJar Optional. Cookie jar to be used if desired.  Useful
+         * @param CookieJarInterface $cookieJar Optional. Cookie jar to be used if desired.  Useful
          * for allowing TCC logins to persist between script runs.  If not provided, one will be created.
          * @return void
          *
@@ -61,7 +65,7 @@ namespace Tenth {
             }
 
             if ($cookieJar === null) {
-                $this->cookieJar = new \GuzzleHttp\Cookie\CookieJar();
+                $this->cookieJar = new CookieJar();
             } else {
                 $this->cookieJar = $cookieJar;
             }
@@ -88,7 +92,7 @@ namespace Tenth {
          * @param string $uri The URI to which the request is to be sent.
          * @param mixed[] $options Guzzle Client options.
          *
-         * @return \Psr\Http\Message\ResponseInterface
+         * @return ResponseInterface
          *
          * @throws GuzzleException
          * @throws Exception
@@ -260,7 +264,7 @@ namespace Tenth {
                     'DNT' => '1'
                 ],
                 'synchronous' => true,
-                'on_stats' => function (\GuzzleHttp\TransferStats $stats) {
+                'on_stats' => function (TransferStats $stats) {
                     if (preg_match('/([0-9]+)/', $stats->getEffectiveUri(), $matches) === 1) {
                         $this->defaultLocationId = $matches[1];
                     } else {
@@ -275,7 +279,7 @@ namespace Tenth {
 
             if (strpos($r->getBody(), "Forgot Password?") !== false) {
                 if ($recurr < 2) {
-                    $this->login($recurr++);
+                    $this->login($recurr+1);
                 } else {
                     throw new Exception("Login failed.  Could not handle cookies.");
                 }
@@ -299,6 +303,7 @@ namespace Tenth {
 
             $zil = $this->addZonesFromHtml($html, 1, $locationId);
 
+            /** @noinspection HtmlUnknownTarget */
             $pagePattern = "/'pageNumber'><a href='(\/portal\/[0-9]+\/Zones\/page([0-9]+))'>/";
 
             if (preg_match_all($pagePattern, $resp->getBody(), $pageMatches, PREG_SET_ORDER) > 0) {
