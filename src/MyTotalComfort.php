@@ -3,6 +3,7 @@
 namespace Tenth {
 
     use GuzzleHttp\Client;
+    use GuzzleHttp\Exception\GuzzleException;
     use GuzzleHttp\RequestOptions;
     use Tenth\MyTotalComfort\Exception;
     use Tenth\MyTotalComfort\Zone;
@@ -89,7 +90,7 @@ namespace Tenth {
          *
          * @return \Psr\Http\Message\ResponseInterface
          *
-         * @throws \GuzzleHttp\Exception\GuzzleException
+         * @throws GuzzleException
          * @throws Exception
          */
         public function request($method, $uri, $options = [])
@@ -114,7 +115,7 @@ namespace Tenth {
          *
          * @return Location[]
          *
-         * @throws \GuzzleHttp\Exception\GuzzleException
+         * @throws GuzzleException
          * @throws Exception
          */
         public function getLocations($reload = true)
@@ -198,7 +199,7 @@ namespace Tenth {
          * @param int|Location $location A Location object or the id of a location.  Uses first location if null.
          * @param bool $reload When true, the list is loaded fresh from the server.
          * @return Zone[]
-         * @throws \GuzzleHttp\Exception\GuzzleException
+         * @throws GuzzleException
          * @throws Exception
          */
         public function getZonesByLocation($location = null, $reload = true)
@@ -228,10 +229,11 @@ namespace Tenth {
         /**
          * The login function.  Wraps the client's request to https://www.mytotalconnectcomfort.com/portal/?timeout=True
          *
+         * @param int $recurr Increments from 0 during recursion.
          * @return boolean Whether login was accepted.  Read the error with the $loginError property.
          *
-         * @throws \GuzzleHttp\Exception\GuzzleException
          * @throws Exception For login failures
+         * @throws GuzzleException
          */
         protected function login($recurr = 0)
         {
@@ -286,27 +288,14 @@ namespace Tenth {
         /**
          * @param int $locationId
          * @return Zone[]
-         * @throws \GuzzleHttp\Exception\GuzzleException
+         * @throws GuzzleException
          * @throws Exception
          */
         protected function loadZonesInLocation($locationId)
         {
-            if ($locationId !== null) {
-                $url = '/portal/' . $locationId . '/Zones';
-            } else {
-                $url = '/portal/';
-            }
-
+            $url = '/portal/' . $locationId . '/Zones';
             $resp = $this->request('GET', $url);
             $html = $resp->getBody();
-
-            if ($locationId === null) {
-                preg_match("/\/portal\/([\d]+)\/Zones\/page/", $html, $locationId);
-//                if (!isset($locationId[1])) { // addresses an issue where zones don't always load the first time.
-//                    return $this->loadZonesInLocation($locationId);
-//                }  TODO remove if unneeded.
-                $locationId = intval($locationId[1]);
-            }
 
             $zil = $this->addZonesFromHtml($html, 1, $locationId);
 

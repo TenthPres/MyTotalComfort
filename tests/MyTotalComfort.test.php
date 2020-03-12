@@ -2,11 +2,12 @@
 
 namespace Tenth\MyTotalComfort\Tests;
 
+use GuzzleHttp\Cookie\FileCookieJar;
 use PHPUnit\Framework\TestCase;
 use Tenth\MyTotalComfort;
 
-class MyTotalComfortTests extends TestCase {
-
+class MyTotalComfortTests extends TestCase
+{
     protected $email = null;
     protected $password = null;
     /** @var MyTotalComfort  */
@@ -40,27 +41,41 @@ class MyTotalComfortTests extends TestCase {
         }
     }
 
-    public function test_invalidEmailThrowsException()
+    public function testInvalidEmailThrowsException()
     {
         $this->expectException(MyTotalComfort\Exception::class);
         new MyTotalComfort('invalid', 'invalid');
     }
 
-    public function test_invalidCredentialThrowsException()
+    public function testInvalidCredentialThrowsException()
     {
         $this->expectException(MyTotalComfort\Exception::class);
         (new MyTotalComfort('invalid@tenth.org', 'badPassword'))->getLocations();
     }
 
-    public function test_constructor() {
-        $this->assertSame(MyTotalComfort::class,
-            get_class(new MyTotalComfort($this->getEmail(), $this->getPassword())));
+    public function testConstructor()
+    {
+        $this->assertInstanceOf(
+            MyTotalComfort::class,
+            new MyTotalComfort($this->getEmail(), $this->getPassword())
+        );
     }
 
-    public function test_login() {
+    public function testLogin()
+    {
         $session = new MyTotalComfort($this->getEmail(), $this->getPassword());
+        // assertSame is being used here as assertIsArray
         $this->assertSame("array", gettype($session->getLocations()));
         return $session;
+    }
+
+    public function testLoginWithAltCookieJar()
+    {
+        $file = "tests/reports/cookiejar.json";
+        $session = new MyTotalComfort($this->getEmail(), $this->getPassword(), new FileCookieJar($file));
+        // assertSame is being used here as assertIsArray
+        $this->assertSame("array", gettype($session->getLocations()));
+        $this->assertFileExists($file);
     }
 
     /**
@@ -68,10 +83,10 @@ class MyTotalComfortTests extends TestCase {
      * @param MyTotalComfort $session
      * @return MyTotalComfort\Location
      */
-    public function test_getLocation(MyTotalComfort $session)
+    public function testGetLocation(MyTotalComfort $session)
     {
         $loc = $session->getLocation();
-        $this->assertSame(MyTotalComfort\Location::class, get_class($loc));
+        $this->assertInstanceOf(MyTotalComfort\Location::class, $loc);
         return $loc;
     }
 
@@ -83,9 +98,9 @@ class MyTotalComfortTests extends TestCase {
      * @throws MyTotalComfort\Exception
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function test_getZonesByLocationDefault(MyTotalComfort $session)
+    public function testGetZonesByLocationDefault(MyTotalComfort $session)
     {
-        $this->assertSame(MyTotalComfort\Zone::class, get_class($session->getZonesByLocation()[0]));
+        $this->assertContainsOnlyInstancesOf(MyTotalComfort\Zone::class, $session->getZonesByLocation());
         return null;
     }
 
@@ -97,10 +112,12 @@ class MyTotalComfortTests extends TestCase {
      * @throws MyTotalComfort\Exception
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function test_getZonesByLocationProvidedId(MyTotalComfort $session, MyTotalComfort\Location $location)
+    public function testGetZonesByLocationProvidedId(MyTotalComfort $session, MyTotalComfort\Location $location)
     {
-        $locs = $session->getLocations();
-        $this->assertSame(MyTotalComfort\Zone::class, get_class($session->getZonesByLocation($location->getId())[0]));
+        $this->assertContainsOnlyInstancesOf(
+            MyTotalComfort\Zone::class,
+            $session->getZonesByLocation($location->getId())
+        );
     }
 
 
@@ -112,9 +129,13 @@ class MyTotalComfortTests extends TestCase {
      * @throws MyTotalComfort\Exception
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function test_getZonesByLocationProvidedObj(MyTotalComfort $session, MyTotalComfort\Location $location)
+    public function testGetZonesByLocationProvidedObj(MyTotalComfort $session, MyTotalComfort\Location $location)
     {
-        $this->assertSame(MyTotalComfort\Zone::class, get_class($session->getZonesByLocation($location)[0]));
+        // assertSame is being used here as assertInstanceOf
+        $this->assertContainsOnlyInstancesOf(
+            MyTotalComfort\Zone::class,
+            $session->getZonesByLocation($location)
+        );
     }
 
     /**
@@ -125,10 +146,9 @@ class MyTotalComfortTests extends TestCase {
      * @throws MyTotalComfort\Exception
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function test_getZonesByLocationNoReload(MyTotalComfort $session, MyTotalComfort\Location $location)
+    public function testGetZonesByLocationNoReload(MyTotalComfort $session, MyTotalComfort\Location $location)
     {
         $locs = $session->getZonesByLocation($location, false);
-        $this->assertSame(MyTotalComfort\Zone::class, get_class(array_pop($locs)));
+        $this->assertContainsOnlyInstancesOf(MyTotalComfort\Zone::class, $locs);
     }
-
 }
