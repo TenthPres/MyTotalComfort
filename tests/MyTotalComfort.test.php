@@ -2,7 +2,9 @@
 
 namespace Tenth\MyTotalComfort\Tests;
 
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\FileCookieJar;
+use GuzzleHttp\Cookie\SetCookie;
 use PHPUnit\Framework\TestCase;
 use Tenth\MyTotalComfort;
 
@@ -78,18 +80,12 @@ class MyTotalComfortTests extends TestCase
 
     public function testLoginWithAltCookieJar()
     {
-        $file = "tests/reports/cookiejar.json";
-        if (!is_dir("tests")) {
-            mkdir("tests");
-        }
-        if (!is_dir("tests/reports")) {
-            mkdir("tests/reports");
-        }
+        $jar = new CookieJar();
 
-        $session = new MyTotalComfort(self::getEmail(), self::getPassword(), new FileCookieJar($file));
+        $session = new MyTotalComfort(self::getEmail(), self::getPassword(), $jar);
         // assertSame is being used here as assertIsArray
         $this->assertSame("array", gettype($session->getLocations()));
-        $this->assertFileExists($file);
+        $this->assertSame(SetCookie::class, get_class($jar->getCookieByName("ASP.NET_SessionId")));
     }
 
     /**

@@ -274,6 +274,9 @@ namespace Tenth {
                         $this->defaultLocationId = $matches[1];
                     } else {
                         $this->defaultLocationId = false;
+                        if (strpos($stats->getEffectiveUri(), "TooManyAttempts")) {
+                            throw new Exception("Too many login attempts");
+                        }
                     }
                 }
             ], $recurr);
