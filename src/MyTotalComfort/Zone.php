@@ -389,6 +389,7 @@ class Zone
      * Submits any changes that may be necessary.
      *
      * @return bool True on success, false on failure.  Will return true if there are no changes to submit.
+     * @throws Exception
      */
     public function submitChanges()
     {
@@ -443,6 +444,7 @@ class Zone
      *
      * @return void
      *
+     * @throws Exception
      */
     public function __destruct()
     {
@@ -481,8 +483,9 @@ class Zone
     /**
      * Meant to be an internal function, this method loads detailed info from TCC.
      *
-     * @internal
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws Exception
+     * @internal
      */
     protected function loadDetails()
     {

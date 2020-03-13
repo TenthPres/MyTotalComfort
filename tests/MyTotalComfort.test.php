@@ -78,13 +78,26 @@ class MyTotalComfortTests extends TestCase
         return $session;
     }
 
+    /**
+     * @throws MyTotalComfort\Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function testLoginWithAltCookieJar()
     {
         $jar = new CookieJar();
 
-        $session = new MyTotalComfort(self::getEmail(), self::getPassword(), $jar);
-        // assertSame is being used here as assertIsArray
-        $this->assertSame("array", gettype($session->getLocations()));
+        try {
+            $session = new MyTotalComfort(self::getEmail(), self::getPassword(), $jar);
+            $session->getLocations(); // used to force login
+        } catch (MyTotalComfort\Exception $e) {
+            if ($e->getMessage() === "Too many login attempts.") {
+                sleep(60);
+                $session = new MyTotalComfort(self::getEmail(), self::getPassword(), $jar);
+                $session->getLocations(); // used to force login
+            } else {
+                throw $e;
+            }
+        }
         $this->assertSame(SetCookie::class, get_class($jar->getCookieByName("ASP.NET_SessionId")));
     }
 

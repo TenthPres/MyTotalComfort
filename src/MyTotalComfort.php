@@ -279,7 +279,7 @@ namespace Tenth {
             ], $recurr);
 
             if (strpos($r->getBody(), "You have exceeded the maximum number of attempts.") > 0) {
-                throw new Exception("Too many login attempts");
+                throw new Exception("Too many login attempts.");
             }
             
             if (strpos($r->getBody(), "Login was unsuccessful.") > 0) {

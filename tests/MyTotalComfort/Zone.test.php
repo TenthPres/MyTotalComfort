@@ -20,62 +20,64 @@ class ZoneTests extends TestCase
      * @throws MyTotalComfort\Exception
      * @throws GuzzleException
      */
-    public function getZone()
+    public function testGetZone()
     {
         if ($this->session === null) {
             $this->session = MyTotalComfortTests::getSession();
             $this->zones = $this->session->getLocation()->getZones();
         }
-        return reset($this->zones);
+        $this->assertContainsOnlyInstancesOf(MyTotalComfort\Zone::class, $this->zones);
+        return $this->zones[array_rand($this->zones)];
     }
 
     /**
-     *
+     * @depends testGetZone
+     * @param MyTotalComfort\Zone $zone
      */
-    public function testDestructor()
+    public function testDestructor(MyTotalComfort\Zone $zone)
     {
-        $z = clone $this->getZone();
+        $z = clone $zone;
         unset($z);
         $this->assertTrue(true);
     }
 
     /**
-     * @throws MyTotalComfort\Exception
-     * @throws GuzzleException
+     * @depends testGetZone
+     * @param MyTotalComfort\Zone $zone
      */
-    public function testGetterId()
+    public function testGetterId(MyTotalComfort\Zone $zone)
     {
-        $this->assertTrue(is_numeric($this->getZone()->id));
+        $this->assertTrue(is_numeric($zone->id));
     }
 
     /**
-     * @throws MyTotalComfort\Exception
-     * @throws GuzzleException
+     * @depends testGetZone
+     * @param MyTotalComfort\Zone $zone
      */
-    public function testGetterInvalidItem()
+    public function testGetterInvalidItem(MyTotalComfort\Zone $zone)
     {
         $this->expectException(MyTotalComfort\Exception::class);
-        $this->getZone()->nonsense;
+        $zone->nonsense;
     }
 
 
     /**
-     * @throws MyTotalComfort\Exception
-     * @throws GuzzleException
+     * @depends testGetZone
+     * @param MyTotalComfort\Zone $zone
      */
-    public function testGetterProbablyAlreadyLoadedItem()
+    public function testGetterProbablyAlreadyLoadedItem(MyTotalComfort\Zone $zone)
     {
-        $this->assertTrue(is_numeric($this->getZone()->dispTemperature));
+        $this->assertTrue(is_numeric($zone->dispTemperature));
     }
 
 
     /**
-     * @throws MyTotalComfort\Exception
-     * @throws GuzzleException
+     * @depends testGetZone
+     * @param MyTotalComfort\Zone $zone
      */
-    public function testGetterProbablyNotAlreadyLoadedItem()
+    public function testGetterProbablyNotAlreadyLoadedItem(MyTotalComfort\Zone $zone)
     {
-        $this->assertSame("integer", gettype($this->getZone()->systemSwitchPosition));
+        $this->assertSame("integer", gettype($zone->systemSwitchPosition));
     }
 
 
