@@ -79,6 +79,13 @@ class MyTotalComfortTests extends TestCase
     public function testLoginWithAltCookieJar()
     {
         $file = "tests/reports/cookiejar.json";
+        if (!is_dir("tests")) {
+            mkdir("tests");
+        }
+        if (!is_dir("tests/reports")) {
+            mkdir("tests/reports");
+        }
+
         $session = new MyTotalComfort(self::getEmail(), self::getPassword(), new FileCookieJar($file));
         // assertSame is being used here as assertIsArray
         $this->assertSame("array", gettype($session->getLocations()));
