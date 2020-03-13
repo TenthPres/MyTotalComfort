@@ -91,19 +91,22 @@ namespace Tenth {
          * @param string $method 'POST', 'GET', etc.
          * @param string $uri The URI to which the request is to be sent.
          * @param mixed[] $options Guzzle Client options.
-         *
+         * @param int $recurr The number of recursions executed.  Times out after 2.
          * @return ResponseInterface
          *
-         * @throws GuzzleException
          * @throws Exception
+         * @throws GuzzleException
          */
-        public function request($method, $uri, $options = [])
+        public function request($method, $uri, $options = [], $recurr = 0)
         {
             $resp = $this->client->request($method, "https://www.mytotalconnectcomfort.com" . $uri, $options);
 
             if (strpos($resp->getBody(), "Forgot Password?") !== false) {
-                if ($this->login()) {
-                    return $this->request($method, $uri, $options);
+                $attempt = $this->login($recurr);
+                if (!!$attempt && $recurr < 3) {
+                    return $this->request($method, $uri, $options, $recurr+1);
+                } else {
+                    throw new Exception("Could not login.", $attempt->getStatusCode());
                 }
             }
 
@@ -234,7 +237,8 @@ namespace Tenth {
          * The login function.  Wraps the client's request to https://www.mytotalconnectcomfort.com/portal/?timeout=True
          *
          * @param int $recurr Increments from 0 during recursion.
-         * @return boolean Whether login was accepted.  Read the error with the $loginError property.
+         * @param string $effectiveUrl The effective URL is provided to this
+         * @return false|ResponseInterface Whether login was accepted.  Read the error with the $loginError property.
          *
          * @throws Exception For login failures
          * @throws GuzzleException
@@ -242,7 +246,7 @@ namespace Tenth {
         protected function login($recurr = 0)
         {
             /* Execute Login */
-            $r = $this->client->request('POST', 'https://www.mytotalconnectcomfort.com/portal/', [
+            $r = $this->request('POST', '/portal/', [
                 'form_params' => [
                     'timeOffset' => 0, //240, // TODO use actual values, and adjust for DST
                     'UserName' => $this->email,
@@ -264,6 +268,7 @@ namespace Tenth {
                     'DNT' => '1'
                 ],
                 'synchronous' => true,
+                // Login always redirects to the default location page, regardless of request.
                 'on_stats' => function (TransferStats $stats) {
                     if (preg_match('/([0-9]+)/', $stats->getEffectiveUri(), $matches) === 1) {
                         $this->defaultLocationId = $matches[1];
@@ -271,21 +276,15 @@ namespace Tenth {
                         $this->defaultLocationId = false;
                     }
                 }
-            ]);
+            ], $recurr);
+
+            sleep(1);
             
             if (strpos($r->getBody(), "Login was unsuccessful.") > 0) {
                 throw new Exception("Login failed.  System Error.");
             }
 
-            if (strpos($r->getBody(), "Forgot Password?") !== false) {
-                if ($recurr < 2) {
-                    $this->login($recurr+1);
-                } else {
-                    throw new Exception("Login failed.  Could not handle cookies.");
-                }
-            }
-
-            return true;
+            return $r;
         }
 
 

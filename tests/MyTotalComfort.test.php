@@ -8,36 +8,43 @@ use Tenth\MyTotalComfort;
 
 class MyTotalComfortTests extends TestCase
 {
-    protected $email = null;
-    protected $password = null;
-    /** @var MyTotalComfort  */
-    protected $activeSession = null;
+    protected static $email = null;
+    protected static $password = null;
+    protected static $session = null;
 
-    private function getEmail()
+    public static function getEmail()
     {
-        if ($this->email === null) {
-            $this->loadCredentials();
+        if (self::$email === null) {
+            self::loadCredentials();
         }
-        return $this->email;
+        return self::$email;
     }
 
-    private function getPassword()
+    public static function getPassword()
     {
-        if ($this->password === null) {
-            $this->loadCredentials();
+        if (self::$password === null) {
+            self::loadCredentials();
         }
-        return $this->password;
+        return self::$password;
     }
 
-    private function loadCredentials()
+    public static function getSession()
+    {
+        if (self::$session === null) {
+            self::$session = new MyTotalComfort(self::getEmail(), self::getPassword());
+        }
+        return self::$session;
+    }
+
+    private static function loadCredentials()
     {
         if (file_exists('tests/credentials.json')) {
             $creds = json_decode(file_get_contents('tests/credentials.json'));
-            $this->email = $creds->email;
-            $this->password = $creds->password;
+            self::$email = $creds->email;
+            self::$password = $creds->password;
         } else {
-            $this->email = getenv("TCC_EMAIL");
-            $this->password = getenv("TCC_PASSWORD");
+            self::$email = getenv("TCC_EMAIL");
+            self::$password = getenv("TCC_PASSWORD");
         }
     }
 
@@ -57,13 +64,13 @@ class MyTotalComfortTests extends TestCase
     {
         $this->assertInstanceOf(
             MyTotalComfort::class,
-            new MyTotalComfort($this->getEmail(), $this->getPassword())
+            new MyTotalComfort(self::getEmail(), self::getPassword())
         );
     }
 
     public function testLogin()
     {
-        $session = new MyTotalComfort($this->getEmail(), $this->getPassword());
+        $session = self::getSession();
         // assertSame is being used here as assertIsArray
         $this->assertSame("array", gettype($session->getLocations()));
         return $session;
@@ -72,7 +79,7 @@ class MyTotalComfortTests extends TestCase
     public function testLoginWithAltCookieJar()
     {
         $file = "tests/reports/cookiejar.json";
-        $session = new MyTotalComfort($this->getEmail(), $this->getPassword(), new FileCookieJar($file));
+        $session = new MyTotalComfort(self::getEmail(), self::getPassword(), new FileCookieJar($file));
         // assertSame is being used here as assertIsArray
         $this->assertSame("array", gettype($session->getLocations()));
         $this->assertFileExists($file);

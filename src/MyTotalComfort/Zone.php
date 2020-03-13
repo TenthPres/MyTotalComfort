@@ -11,6 +11,7 @@ use Tenth\MyTotalComfort;
  *
  * @package Tenth\MyTotalComfort
  *
+ * @property-read int $id The id number of the zone
  * @property-read string $name The name of the zone.
  * @property-read bool $gatewayIsLost Whether the connection to the gateway has been lost.
  * @property-read bool $dispTemperatureAvailable Whether the indoor temperature is available.
@@ -505,8 +506,6 @@ class Zone
         ]);
 
         // TODO parse alerts.
-
-        var_dump($data);
 
         $this->validateDetailValues();
 
