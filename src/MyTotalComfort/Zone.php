@@ -508,7 +508,7 @@ class Zone
             'canControlHumidification' => $data->latestData->canControlHumidification
         ]);
 
-        // TODO parse alerts.
+        $this->alerts = Alert::fromJsonString($data->alerts);
 
         $this->validateDetailValues();
 

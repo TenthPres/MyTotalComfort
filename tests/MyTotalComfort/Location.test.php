@@ -5,6 +5,7 @@ namespace Tenth\MyTotalComfort\Tests\MyTotalComfort;
 use PHPUnit\Framework\TestCase;
 use Tenth\MyTotalComfort;
 use Tenth\MyTotalComfort\Tests\MyTotalComfortTests;
+use GuzzleHttp\Exception\GuzzleException;
 
 class LocationTests extends TestCase
 {
@@ -16,7 +17,7 @@ class LocationTests extends TestCase
     /**
      * @return MyTotalComfort\Location
      * @throws MyTotalComfort\Exception
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function testGetLocation()
     {
@@ -31,6 +32,7 @@ class LocationTests extends TestCase
 
     /**
      * @depends testGetLocation
+     * @param MyTotalComfort\Location $loc
      */
     public function testToString(MyTotalComfort\Location $loc)
     {
@@ -39,6 +41,7 @@ class LocationTests extends TestCase
 
     /**
      * @depends testGetLocation
+     * @param MyTotalComfort\Location $loc
      */
     public function testGetId(MyTotalComfort\Location $loc)
     {
@@ -47,6 +50,9 @@ class LocationTests extends TestCase
 
     /**
      * @depends testGetLocation
+     * @param MyTotalComfort\Location $loc
+     * @throws MyTotalComfort\Exception
+     * @throws GuzzleException
      */
     public function testGetZones(MyTotalComfort\Location $loc)
     {

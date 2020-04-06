@@ -45,6 +45,8 @@ namespace Tenth {
         /** @var string */
         private $password;
 
+        public static $tzUTC = null;
+
 
         /**
          * MyTotalComfort constructor.  Pass login arguments.
@@ -62,6 +64,10 @@ namespace Tenth {
 
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 throw new Exception("A valid email address was not provided for login.");
+            }
+
+            if (self::$tzUTC === null) {
+                self::$tzUTC = new \DateTimeZone('UTC');
             }
 
             if ($cookieJar === null) {
@@ -248,7 +254,7 @@ namespace Tenth {
             /* Execute Login */
             $r = $this->request('POST', '/portal/', [
                 'form_params' => [
-                    'timeOffset' => 0, //240, // TODO use actual values, and adjust for DST
+                    'timeOffset' => 0, // Deliberately zero.  Functionally keeps times in UTC.
                     'UserName' => $this->email,
                     'Password' => $this->password,
                     'RememberMe' => 'false'
@@ -355,7 +361,7 @@ namespace Tenth {
                     'dispTemperature' => intval($therm[3]),
                     'indoorHumiditySensorAvailable' => is_numeric($therm[4]),
                     'indoorHumidity' => intval($therm[4]),
-                    'errors' => $therm[5] // TODO parse into string[].
+                    'alerts' => $therm[5]
                 ]);
             }
 
