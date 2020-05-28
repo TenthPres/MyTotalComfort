@@ -243,7 +243,6 @@ namespace Tenth {
          * The login function.  Wraps the client's request to https://www.mytotalconnectcomfort.com/portal/?timeout=True
          *
          * @param int $recurr Increments from 0 during recursion.
-         * @param string $effectiveUrl The effective URL is provided to this
          * @return false|ResponseInterface Whether login was accepted.  Read the error with the $loginError property.
          *
          * @throws Exception For login failures

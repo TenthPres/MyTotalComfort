@@ -75,7 +75,7 @@ class Zone
     protected $isDirty = false;
 
     /** @var MyTotalComfort */
-    protected $context;
+    public $context;
 
     /** @var int */
     protected $id;
@@ -508,7 +508,7 @@ class Zone
             'canControlHumidification' => $data->latestData->canControlHumidification
         ]);
 
-        $this->alerts = Alert::fromJsonString($data->alerts);
+        $this->alerts = Alert::fromJsonString($data->alerts, $this);
 
         $this->validateDetailValues();
 

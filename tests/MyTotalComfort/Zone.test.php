@@ -81,4 +81,28 @@ class ZoneTests extends TestCase
     }
 
 
+    /**
+     * @depends testGetZone
+     * @param MyTotalComfort\Zone $zone
+     */
+    public function testAlertAcknowledgeSync(MyTotalComfort\Zone $zone)
+    {
+        if (count($zone->alerts) > 0) {
+            $zone->alerts[0]->acknowledgeSync();
+        }
+        $this->assertSame(true, true); // the real test is whether there's an exception.
+    }
+
+    /**
+     * @depends testGetZone
+     * @param MyTotalComfort\Zone $zone
+     */
+    public function testAlertAcknowledgeAsync(MyTotalComfort\Zone $zone)
+    {
+        if (count($zone->alerts) > 0) {
+            $zone->alerts[0]->acknowledge();
+        }
+        $this->assertSame(true, true); // the real test is whether there's an exception.
+    }
+
 }
