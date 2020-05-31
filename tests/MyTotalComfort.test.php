@@ -95,7 +95,6 @@ class MyTotalComfortTests extends TestCase
      */
     public function testLoginWithAltCookieJar()
     {
-        $this->markTestSkipped("Skipping to reduce run count..."); // todo remove this line
         $jar = new CookieJar();
 
         try {

@@ -95,47 +95,18 @@ class ZoneTests extends TestCase
         $this->assertSame("integer", gettype($zone->systemSwitchPosition));
     }
 
-    /**
-     * @param bool $mustBeAcknowledgable
-     * @return MyTotalComfort\Alert
-     */
-    public function findAnAlert($mustBeAcknowledgable = false)
-    {
-        foreach ($this->zones as $z) {
-            if (count($z->alerts) > 0) {
-                foreach ($z->alerts as $a) {
-                    if (!$mustBeAcknowledgable || $a->acknowledgable) {
-                        return $a;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
 
     /**
      * @depends testGetZone
      * @param MyTotalComfort\Zone $zone
+     * @throws MyTotalComfort\Exception
      */
-    public function testAlertAcknowledgeSync(MyTotalComfort\Zone $zone)
+    public function testWriting(MyTotalComfort\Zone $zone)
     {
-        if (count($zone->alerts) > 0) {
-            $zone->alerts[0]->acknowledgeSync();
-        }
-        $this->assertSame(true, true); // the real test is whether there's an exception.
-    }
-
-    /**
-     * @depends testGetZone
-     * @param MyTotalComfort\Zone $zone
-     */
-    public function testAlertAcknowledgeAsync(MyTotalComfort\Zone $zone)
-    {
-        if (count($zone->alerts) > 0) {
-            $zone->alerts[0]->acknowledge();
-        }
-        $this->assertSame(true, true); // the real test is whether there's an exception.
+        $zone->hold = !$zone->hold;
+        $this->assertSame(true, $zone->submitChanges());
+        sleep(15);
+        $zone->hold = false;
     }
 
 }
