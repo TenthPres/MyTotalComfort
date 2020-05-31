@@ -55,6 +55,9 @@ class Location
      */
     public function __toString()
     {
+        if ($this->name === null) {
+            return "UNKNOWN LOCATION NAME"; // TODO load location name
+        }
         return $this->name;
     }
 

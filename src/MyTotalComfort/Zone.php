@@ -64,6 +64,8 @@ use Tenth\MyTotalComfort;
  * @property-read bool $switchOffAllowed Whether the system can be turned to Off mode.  Possibly always true.
  * @property-read int $systemSwitchPosition Current position of the system switch.  Values not entirely known.
  * @property-read int $fanStatus UNKNOWN
+ * @property-read Alert[] $alerts An array of alert objects that may be present in the Zone.
+ * @property-read bool $hasAlerts Whether there are active alerts
  */
 class Zone
 {
@@ -266,6 +268,9 @@ class Zone
     /** @var Alert[] */
     protected $alerts = [];
 
+    /** @var bool Whether the zone has current alerts. */
+    protected $hasAlerts = false;
+
 
     /* STATUS */
     /** @var int Current system running mode */
@@ -275,12 +280,9 @@ class Zone
     protected $fanStatus;
 
 
-
     /* CACHE CONTROL */
     /** @var string[]  */
     protected $loadedValues = [];
-
-
 
 
     /**
@@ -293,7 +295,6 @@ class Zone
         return $this->locationId;
     }
 
-
     /**
      * Zone constructor.
      *
@@ -304,13 +305,11 @@ class Zone
      */
     public function __construct(MyTotalComfort $tccObject, $id, $data = [])
     {
-
         $this->context = $tccObject;
         $this->id = $id;
 
         $this->setMultiple($data);
     }
-
 
     /**
      * Intended for pulling in data from other classes in this package.
@@ -322,13 +321,20 @@ class Zone
         foreach ($dataArray as $k => $v) {
             $k = strtolower($k[0]) . substr($k, 1);
 
-            if (property_exists($this, $k) && $k !== 'id') {
+            if ($k === "hasAlerts") {
+                $this->hasAlerts = !!$v;
+                $this->loadedValues['hasAlerts'] = true;
+            } elseif ($k === "alerts") {
+                $this->alerts = Alert::fromJsonString($v, $this);
+                $this->hasAlerts = count($this->alerts) > 0;
+                $this->loadedValues['hasAlerts'] = true;
+                $this->loadedValues['alerts'] = true;
+            } elseif (property_exists($this, $k) && $k !== 'id') {
                 $this->loadedValues[$k] = true;
                 $this->$k = $v;
             }
         }
     }
-
 
     /**
      * Cleans up data to keep API results consistent and logical.
@@ -384,7 +390,6 @@ class Zone
         return $this->$what;
     }
 
-
     /**
      * Submits any changes that may be necessary.
      *
@@ -437,7 +442,6 @@ class Zone
         return false;
     }
 
-
     /**
      *
      * Submits any pending changes before the object is destroyed.
@@ -450,7 +454,6 @@ class Zone
     {
         $this->submitChanges();
     }
-
 
     /**
      * Setter for the writable properties.
@@ -479,7 +482,6 @@ class Zone
         }
     }
 
-
     /**
      * Meant to be an internal function, this method loads detailed info from TCC.
      *
@@ -507,11 +509,11 @@ class Zone
             'hasFan' => $data->latestData->hasFan,
             'canControlHumidification' => $data->latestData->canControlHumidification
         ]);
-
-        $this->alerts = Alert::fromJsonString($data->alerts, $this);
+        $this->setMultiple(['alerts' => $data->alerts]);
 
         $this->validateDetailValues();
 
         return true;
     }
 }
+

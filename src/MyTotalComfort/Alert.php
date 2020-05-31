@@ -4,6 +4,12 @@ namespace Tenth\MyTotalComfort;
 
 use Tenth\MyTotalComfort;
 
+/**
+ * Class Alert
+ * @package Tenth\MyTotalComfort
+ *
+ *
+ */
 class Alert
 {
     protected $acknowledgable = false; // should be treated as immutable.
@@ -30,7 +36,7 @@ class Alert
         );
 
         $alerts = [];
-        foreach ($matches as $alert => $content) {
+        foreach ($matches as $content) {
             $alerts[] = new Alert($content, $zone);
         }
         return $alerts;
@@ -55,10 +61,15 @@ class Alert
         $this->text = $attributes[1];
         $this->dateTime = \DateTime::createFromFormat("n/j/Y g:i:s A", $attributes[2], MyTotalComfort::$tzUTC);
         $this->zone = $zone;
-        if (is_numeric($attributes[3])) {
+        if (isset($attributes[3]) && is_numeric($attributes[3])) {
             $this->id = $attributes[3];
             $this->acknowledgable = true;
         }
+    }
+
+    public function __toString()
+    {
+        return $this->text;
     }
 
     /**
@@ -69,6 +80,9 @@ class Alert
         return $this->acknowledgeInternal(false);
     }
 
+    /**
+     * Acknowledges and dismisses an alert synchronously, if the alert is able to be acknowledged and dismissed.
+     */
     public function acknowledgeSync()
     {
         return $this->acknowledgeInternal(true);
@@ -81,7 +95,7 @@ class Alert
      * @throws Exception
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    private function acknowledgeInternal($sync = false)
+    protected function acknowledgeInternal($sync = false)
     {
         if (!$this->acknowledgable) {
             return null;
@@ -93,7 +107,6 @@ class Alert
                 'AlertID' => $this->id,
             ],
             'synchronous' => $sync,
-            // Login always redirects to the default location page, regardless of request.
         ], 0);
     }
 }

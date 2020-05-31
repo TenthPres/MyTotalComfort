@@ -9,6 +9,7 @@ namespace Tenth {
     use GuzzleHttp\RequestOptions;
     use GuzzleHttp\TransferStats;
     use Psr\Http\Message\ResponseInterface;
+    use Tenth\MyTotalComfort\Alert;
     use Tenth\MyTotalComfort\Exception;
     use Tenth\MyTotalComfort\Zone;
     use Tenth\MyTotalComfort\Location;
@@ -360,7 +361,7 @@ namespace Tenth {
                     'dispTemperature' => intval($therm[3]),
                     'indoorHumiditySensorAvailable' => is_numeric($therm[4]),
                     'indoorHumidity' => intval($therm[4]),
-                    'alerts' => $therm[5]
+                    'hasAlerts' => strpos($therm[5], "message") !== false
                 ]);
             }
 

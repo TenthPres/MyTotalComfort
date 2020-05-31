@@ -15,6 +15,25 @@ class ZoneTests extends TestCase
     /** @var MyTotalComfort\Zone[] */
     private $zones;
 
+
+    /**
+     * ZoneTests constructor.  Loads up a session to be used by other tests.
+     * @param null $name
+     * @param array $data
+     * @param string $dataName
+     * @throws GuzzleException
+     * @throws MyTotalComfort\Exception
+     */
+    public function __construct($name = null, array $data = [], $dataName = '')
+    {
+        if ($this->session === null) {
+            $this->session = MyTotalComfortTests::getSession();
+            $this->zones = $this->session->getLocation()->getZones();
+        }
+
+        parent::__construct($name, $data, $dataName);
+    }
+
     /**
      * @return MyTotalComfort\Zone
      * @throws MyTotalComfort\Exception
@@ -22,10 +41,6 @@ class ZoneTests extends TestCase
      */
     public function testGetZone()
     {
-        if ($this->session === null) {
-            $this->session = MyTotalComfortTests::getSession();
-            $this->zones = $this->session->getLocation()->getZones();
-        }
         $this->assertContainsOnlyInstancesOf(MyTotalComfort\Zone::class, $this->zones);
         return $this->zones[array_rand($this->zones)];
     }
@@ -78,6 +93,24 @@ class ZoneTests extends TestCase
     public function testGetterProbablyNotAlreadyLoadedItem(MyTotalComfort\Zone $zone)
     {
         $this->assertSame("integer", gettype($zone->systemSwitchPosition));
+    }
+
+    /**
+     * @param bool $mustBeAcknowledgable
+     * @return MyTotalComfort\Alert
+     */
+    public function findAnAlert($mustBeAcknowledgable = false)
+    {
+        foreach ($this->zones as $z) {
+            if (count($z->alerts) > 0) {
+                foreach ($z->alerts as $a) {
+                    if (!$mustBeAcknowledgable || $a->acknowledgable) {
+                        return $a;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 
