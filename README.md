@@ -34,3 +34,53 @@ There's currently an issue when generating documentation in PHP 7.4 that makes t
 ## Disclaimers
 
 The contributors to this project are not affiliated with Honeywell.
+
+## Examples
+
+### Log In
+This Example is required before any of the other examples below will work. 
+
+```php
+require_once 'vendor/autoload.php';
+
+$tcc = new \Tenth\MyTotalComfort("email@example.com", "password");
+```
+
+### List Conditions
+Current Temperature and Set Points for all Zones in a Location. 
+
+```php
+$locationId = 1234567;
+
+echo "<table>";
+echo "<tr>
+    <td>id</td>
+    <td>name</td>
+    <td>heatSet</td>
+    <td>dispTemp</td>
+    <td>coolSet</td>
+</tr>";
+
+foreach ($tcc->getZonesByLocation($locationId) as $zi => $zone) {
+    echo "<tr>
+        <td>{$zone->id}</td>
+        <td><a href='https://www.mytotalconnectcomfort.com/portal/Device/Control/{$zone->id}'>{$zone->name}</a></td>
+        <td>{$zone->heatSetpoint}</td>
+        <td>{$zone->dispTemperature}</td>
+        <td>{$zone->coolSetpoint}</td>
+    </tr>";
+}
+
+echo "</table>";
+```
+
+### Change Set Points
+
+```php
+$zoneId = 1234567;
+
+$z = $tcc->getZone($zoneId);
+
+$z->heatSetpoint = 70;
+$z->coolSetpoint = 74;
+```
