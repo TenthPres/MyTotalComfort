@@ -6,6 +6,10 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        php_version: [ 5.6, 5.8, 7.0, 7.2, 7.4, 8.0, 8.2 ]
+
     steps:
       - uses: actions/checkout@v2
 
@@ -14,6 +18,7 @@ jobs:
       - name: PHPUnit Tests
         uses: php-actions/phpunit@v2
         with:
+          php_version: matrix.php_version
           php_extensions: xdebug
           bootstrap: vendor/autoload.php
           configuration: phpunit.xml.dist
