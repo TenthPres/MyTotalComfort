@@ -18,7 +18,7 @@ jobs:
       - name: PHPUnit Tests
         uses: php-actions/phpunit@v2
         with:
-          php_version: matrix.php_version
+          php_version: "${{matrix.php_version}}"
           php_extensions: xdebug
           bootstrap: vendor/autoload.php
           configuration: phpunit.xml.dist
