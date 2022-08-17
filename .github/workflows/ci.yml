@@ -1,6 +1,6 @@
 name: CI-coverage
 
-on: [push]
+on: [pull_request, push]
 
 jobs:
   build-test:
@@ -19,5 +19,6 @@ jobs:
           configuration: phpunit.xml.dist
           args: --coverage-text
         env:
-          XDEBUG_MODE: coverage
-          TEST_NAME: Scarlett
+          XDEBUG_MODE: coverage,
+          TCC_EMAIL: "${{secrets.TCC_EMAIL}}",
+          TCC_PASSWORD: "${{secrets.TCC_PASSWORD}}"
