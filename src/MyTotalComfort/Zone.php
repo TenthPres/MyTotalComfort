@@ -21,7 +21,7 @@ use Tenth\MyTotalComfort;
  * @property-read bool $indoorHumiditySensorNotFault Whether an indoor humidity sensor is working properly.
  * @property-read int $indoorHumidity Indoor relative humidity.
  * @property-read int $indoorHumidStatus UNKNOWN
- * @property-read int $equipmentOutputStatus UNKNOWN
+ * @property-read int $equipmentOutputStatus Heat: 1, Cool: 2.  Other values unknown. 
  * @property-read int $outdoorHumidStatus UNKNOWN
  * @property-read int $outdoorHumidity Outdoor relative humidity
  * @property-read bool $outdoorHumidityAvailable Whether outdoor humidity information is available
@@ -40,7 +40,7 @@ use Tenth\MyTotalComfort;
  * @property-read int $heatUpperSetptLimit Heat Upper Setpoint Limit.
  * @property-read int $scheduleHeatSp Heat setpoint, according to the current period in the schedule.
  * @property-read int $statusHeat UNKNOWN
- * @property-read int $currentSetpointStatus UNKNOWN
+ * @property-read int $currentSetpointStatus Scheduled: 0, Temporary: 1, Hold: 2, Vacation Hold: 3
  * @property-read int $deadband The minimum difference between the heat and cool setpoints.
  * @property-read bool $dualSetpointStatus UNKNOWN
  * @property-read bool $setpointChangeAllowed Whether the setpoint can be changed.  It is unclear if this is ever false.
@@ -63,7 +63,7 @@ use Tenth\MyTotalComfort;
  * @property-read bool $switchEmergencyHeatAllowed Whether the system can be turned to Emergency Heat mode. (Heat Pumps)
  * @property-read bool $switchOffAllowed Whether the system can be turned to Off mode.  Possibly always true.
  * @property-read int $systemSwitchPosition Current position of the system switch.  Values not entirely known.
- * @property-read int $fanStatus UNKNOWN
+ * @property-read int $fanStatus Auto: 0, On: 1, Circulate: 2, FollowSchedule: 3, Unknown: 4
  * @property-read Alert[] $alerts An array of alert objects that may be present in the Zone.
  * @property-read bool $hasAlerts Whether there are active alerts
  */
@@ -118,7 +118,7 @@ class Zone
     /** @var int UNKNOWN */
     protected $indoorHumidStatus;
 
-    /** @var int UNKNOWN */
+    /** @var int Heat: 1, Cool: 2.  Other values unknown.  */
     protected $equipmentOutputStatus;
 
 
@@ -276,7 +276,7 @@ class Zone
     /** @var int Current system running mode */
     protected $runStatus = 0;
 
-    /** @var int Current fan running mode */
+    /** @var int Current fan running mode  Auto: 0, On: 1, Circulate: 2, FollowSchedule: 3, Unknown: 4 */
     protected $fanStatus;
 
 
