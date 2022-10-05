@@ -64,6 +64,7 @@ use Tenth\MyTotalComfort;
  * @property-read bool $switchOffAllowed Whether the system can be turned to Off mode.  Possibly always true.
  * @property-read int $systemSwitchPosition Current position of the system switch.  Values not entirely known.
  * @property-read int $fanStatus Auto: 0, On: 1, Circulate: 2, FollowSchedule: 3, Unknown: 4
+ * @property-read bool $fanIsRunning self-expanatory
  * @property-read Alert[] $alerts An array of alert objects that may be present in the Zone.
  * @property-read bool $hasAlerts Whether there are active alerts
  */
@@ -278,6 +279,9 @@ class Zone
 
     /** @var int Current fan running mode  Auto: 0, On: 1, Circulate: 2, FollowSchedule: 3, Unknown: 4 */
     protected $fanStatus;
+    
+    /** @var bool fan is running */
+    protected $fanIsRunning;
 
 
     /* CACHE CONTROL */
